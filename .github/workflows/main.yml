@@ -37,7 +37,7 @@ jobs:
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
           wget -q -O cygwin.tar.gz https://github.com/cygwin/cygwin/archive/refs/tags/cygwin-${{ env.CYGWIN_V }}.tar.gz
-          wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ COCOM_V }}.tar.gz
+          wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O cloog.tar.gz http://www.bastoul.net/cloog/pages/download/cloog-${{ env.CLOOG_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
           tar -xf binutils.tar.xz
