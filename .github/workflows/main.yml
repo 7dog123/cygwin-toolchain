@@ -48,7 +48,6 @@ jobs:
           wget -q -O cloog.tar.gz https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloog/0.18.4-2/cloog_0.18.4.orig.tar.gz
           wget -q -O debian.tar.xz https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloog/0.18.4-2/cloog_0.18.4-2.debian.tar.xz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
-          wget -q -O isl.tar.bz https://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
           tar -xf cocom.tar.gz
@@ -56,7 +55,8 @@ jobs:
           cd cloog-${{ env.CLOOG_V }}
           tar -xf ../debian.tar.xz
           rm -Rf isl
-          tar -xf ../isl.tar.bz2
+          wget -q https://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2
+          tar -xf isl-0.18.tar.bz2
           mv -v isl-0.18 isl
           sed -i 's/libisl-0.18-dev/#libisl-0.18-dev/g' debian/control
           sed -i 's/--with-isl=system/--with-isl=build/g' debian/rules
