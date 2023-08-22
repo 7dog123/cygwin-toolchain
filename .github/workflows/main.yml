@@ -48,7 +48,7 @@ jobs:
           tar -xf cocom.tar.gz
           tar -xf cloog.tar.gz
           tar -xf iconv.tar.gz
-          binutils-${{ env.BINUTILS_V }}
+          cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
           cat ../binutils-2.41-cygwin-pep-dll-double-definition.patc | patch -p2
