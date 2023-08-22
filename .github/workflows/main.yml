@@ -20,20 +20,18 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: ubuntu:18.04
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install build-essential autoconf automake patch perl \
+          apt-get update
+          apt-get install build-essential autoconf automake patch perl \
           dblatex docbook2x docbook-xsl xmlto python3 python3-lxml python3-ply \
           dejagnu bison flex libtool libgmp-dev libisl-dev libmpfr-dev rpm2cpio \
-          cpio libmpc-dev devscripts dh-autoreconf debhelper help2man
-          #wget -q https://launchpad.net/ubuntu/+source/cloog/0.18.4-2/+build/14458385/+files/cloog-isl_0.18.4-2_amd64.deb
-          #wget -q https://launchpad.net/ubuntu/+source/cloog/0.18.4-2/+build/14458385/+files/libcloog-isl-dev_0.18.4-2_amd64.deb
-          #sudo dpkg -i cloog-isl_0.18.4-2_amd64.deb libcloog-isl-dev_0.18.4-2_amd64.deb
+          cpio libmpc-dev libcloog-isl-dev
 
       - name: Download, extract and patch Source
         run: |
@@ -51,16 +49,16 @@ jobs:
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
           tar -xf cocom.tar.gz
-          tar -xf cloog.tar.gz
-          cd cloog-${{ env.CLOOG_V }}
-          tar -xf ../debian.tar.xz
-          rm -Rf isl
-          wget -q https://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2
-          tar -xf isl-0.18.tar.bz2
-          mv -v isl-0.18 isl
-          sed -i 's/libisl-0.18-dev//g' debian/control
-          sed -i 's/--with-isl=system/--with-isl=build/g' debian/rules
-          cd ..
+          #tar -xf cloog.tar.gz
+          #cd cloog-${{ env.CLOOG_V }}
+          #tar -xf ../debian.tar.xz
+          #rm -Rf isl
+          #wget -q https://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2
+          #tar -xf isl-0.18.tar.bz2
+          #mv -v isl-0.18 isl
+          #sed -i 's/libisl-0.18-dev//g' debian/control
+          #sed -i 's/--with-isl=system/--with-isl=build/g' debian/rules
+          #cd ..
           tar -xf iconv.tar.gz
           cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
@@ -97,10 +95,10 @@ jobs:
           #cat ../pull-req-38.diff | patch -p1
           #autoreconf -fi
           
-      - name: Build cloog
-        run: |
-          cd cloog-${{ env.CLOOG_V }}
-          dpkg-buildpackage -rfakeroot -b -uc -us
+      #- name: Build cloog
+        #run: |
+          #cd cloog-${{ env.CLOOG_V }}
+          #dpkg-buildpackage -rfakeroot -b -uc -us
           #mkdir build-cloog
           #cd build-cloog
           #../cloog-${{ env.CLOOG_V }}/configure --prefix=/usr ${{ env.CLOOG_O }} CFLAGS="-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security" CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2" LDFLAGS="-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -Wl,-z,defs"
