@@ -58,7 +58,7 @@ jobs:
           wget -q https://gcc.gnu.org/pub/gcc/infrastructure/isl-0.18.tar.bz2
           tar -xf isl-0.18.tar.bz2
           mv -v isl-0.18 isl
-          sed -i 's/libisl-0.18-dev/#libisl-0.18-dev/g' debian/control
+          sed -i 's/libisl-0.18-dev//g' debian/control
           sed -i 's/--with-isl=system/--with-isl=build/g' debian/rules
           cd ..
           tar -xf iconv.tar.gz
