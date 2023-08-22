@@ -11,7 +11,7 @@ env:
   COCOM_V:    "0.996"
   COCOM_O:    ""
   CLOOG_V:    "0.18.4"
-  CLOOG_O:    "--with-isl=bundled --with-bits=gmp --disable-silent-rules"
+  CLOOG_O:    "--with-isl=system --with-bits=gmp --disable-silent-rules"
   ICONV_V:    "1.17"
   ICONV_O:    "--enable-shared --disable-static --with-libiconv-prefix=no --with-libintl-prefix=no --enable-shared --enable-static --enable-extra-encodings am_cv_proto_iconv_arg1= 'am_cv_proto_iconv=extern size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);'"
   TARGET:     "x86_64-pc-cygwin"
