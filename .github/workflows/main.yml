@@ -118,7 +118,7 @@ jobs:
         run: |
           mkdir build-icon
           cd build-icon
-          ../libiconv-${{ env.ICONV_V }}configure --prefix=/usr ${{ env.ICONV_O }}
+          ../libiconv-${{ env.ICONV_V }}/configure --prefix=/usr ${{ env.ICONV_O }}
           make -j2
           make install -j2
 
