@@ -56,7 +56,7 @@ jobs:
           cd cloog-${{ env.CLOOG_V }}
           tar -xf ../debian.tar.xz
           rm -Rf isl
-          tar -xf ../isl-0.18.tar.bz2
+          tar -xf ../isl.tar.bz2
           mv -v isl-0.18 isl
           sed -i 's/libisl-0.18-dev/#libisl-0.18-dev/g' debian/control
           sed -i 's/--with-isl=system/--with-isl=build/g' debian/rules
