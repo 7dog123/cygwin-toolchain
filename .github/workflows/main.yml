@@ -1,0 +1,146 @@
+name: CI
+
+on: [ push, pull_request ]
+env:
+  BINUTILS_V: "2.41"
+  BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-64-bit-bfd --enable-install-libiberty --enable-targets=x86_64-pep --with-system-zlib --with-gcc-major-version-only --enable-shared --enable-host-shared"
+  GCC_V:      "11.4.0"
+  GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=ada,c,c++,d,fortran,lto,objc,obj-c++,jit --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --with-cloog-include=/usr/include/cloog-isl --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts"
+  CYGWIN_V:   "3.4.8"
+  CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix"
+  COCOM_V:    "0.996"
+  COCOM_O:    ""
+  CLOOG_V:    "0.18.4"
+  CLOOG_O:    "--with-isl=bundled --with-bits=gmp --disable-silent-rules"
+  ICONV_V:    "1.17"
+  ICONV_O:    "--enable-shared --disable-static --with-libiconv-prefix=no --with-libintl-prefix=no --enable-shared --enable-static --enable-extra-encodings am_cv_proto_iconv_arg1= 'am_cv_proto_iconv=extern size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);'"
+  TARGET:     "x86_64-pc-cygwin"
+  
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential autoconf automake patch perl \
+          dblatex docbook2x docbook-xsl xmlto python3 python3-lxml python3-ply \
+          dejagnu bison flex libtool libgmp-dev libisl-dev libmpfr-dev rpm2cpio \
+          cpio libmpc-dev
+
+      - name: Download, extract and patch Source
+        run: |
+          wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
+          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
+          wget -q -O cygwin.tar.gz https://github.com/cygwin/cygwin/archive/refs/tags/cygwin-${{ env.CYGWIN_V }}.tar.gz
+          wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ COCOM_V }}.tar.gz
+          wget -q -O cloog.tar.gz http://www.bastoul.net/cloog/pages/download/cloog-${{ env.CLOOG_V }}.tar.gz
+          wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
+          tar -xf binutils.tar.xz
+          tar -xf gcc.tar.xz
+          tar -xf cygwin.tar.gz
+          tar -xf cocom.tar.gz
+          tar -xf cloog.tar.gz
+          tar -xf iconv.tar.gz
+          binutils-${{ env.BINUTILS_V }}
+          # Patch binutils
+          cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
+          cat ../binutils-2.41-cygwin-pep-dll-double-definition.patc | patch -p2
+          cat ../binutils-2.41-cygwin-restore-bfd-seek-optimization.patch | patch -p1
+          # Patch shared libs
+          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" bfd/configure
+          sed -i "s#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="-Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin -lkernel32"#g" bfd/configure
+          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" bfd/configure.ac
+          sed -i "s#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g" bfd/configure.ac
+          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" opcodes/configure
+          sed -i "s#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g" opcodes/configure
+          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" opcodes/configure.ac
+          sed -i "s#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g" opcodes/configure.ac
+          cd ../gcc-${{ env.GCC_V }}
+          # patch gcc
+          cat ../0001-Cygwin-use-SysV-ABI-on-x86_64.patch | patch -p1
+          cat ../0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch | patch -p1
+          cat ../0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch | patch -p1
+          cat ../0004-Cygwin-MinGW-skip-test.patch | patch -p1
+          cat ../0005-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch | patch -p1
+          cat ../0007-Cygwin-__cxa-atexit.patch | patch -p1
+          cat ../0008-Cygwin-libgomp-soname.patch | patch -p1
+          cat ../0009-Cygwin-g-time.patch | patch -p1
+          cat ../0010-Cygwin-newlib-ftm.patch | patch -p1
+          cat ../0011-Cygwin-define-STD_UNIX.patch | patch -p1
+          cat ../0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
+          cat ../0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
+          cat ../0201-Cygwin-ada-shared-prefix.patch | patch -p2
+          cd ../cloog-${{ env.CLOOG_V }}
+          # patch cloog
+          cat ../use_autoreconf.patch | patch -p1
+          cat ../pull-req-38.diff | patch -p1
+          autoreconf -fi
+          
+      - name: Build cloog
+        run: |
+          mkdir build-cloog
+          cd build-cloog
+          ../cloog-${{ env.CLOOG_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.CLOOG_O }} CFLAGS="-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security" CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2" LDFLAGS="-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -Wl,-z,defs"
+          make -j2
+          make install -j2
+
+      - name: Build cocom
+        run: |
+          mkdir build-cocom
+          cd build-cocom
+          ../cocom-${{ COCOM_V }}/configure --prefix=${{ github.workspace }}/gcc/cygin ${{ env.COCOM_O }}
+          make -j2
+          make install -j2
+
+      - name: Build libiconv
+        run: |
+          mkdir build-icon
+          cd build-icon
+          ../libiconv-${{ env.ICONV_V }}configure --prefix=${{ github.workspace }}/gcc/cygin ${{ env.ICONV_O }}
+          make -j2
+          make install -j2
+
+      - name: Build binutils
+        run: |
+          mkdir build-binutils
+          cd build-binutils
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
+          make -j2
+          make install -j2
+
+      - name: Build gcc
+        run: |
+          mkdir build-gcc
+          cd build-gcc
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.GCC_O }}
+          MAKEOPTS=" -Otarget"
+          export glibcxx_cv_realpath=yes
+          ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
+          ___CFLAGS+=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
+          ___CFLAGS+=`echo ${___CFLAGS} | sed 's/[[:blank:]]\+/ /g'`
+          ___CXXFLAGS+=`echo ${CXXFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
+          ___CXXFLAGS+=`echo ${___CXXFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
+          ___CXXFLAGS+=`echo ${___CXXFLAGS} | sed 's/[[:blank:]]\+/ /g'`
+          CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
+          CXXFLAGS=${___CXXFLAGS}
+          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"  || true
+          make install -j2
+
+      - name: Build cygwin
+        run: |
+          cd cygwin-${{ env.CYGWIN_V }/winsup
+          ./autogen.sh
+          cd ../..
+          mkdir build-cygwin
+          cd build-cygwin
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.CYGWIN_O }}
+          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
+          CXXFLAGS+=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
+          CXXFLAGS+=" -DCYGPORT_RELEASE_INFO='3.4.8-1'"
+          make -j2
+          make install -j2
