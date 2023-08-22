@@ -31,6 +31,9 @@ jobs:
           dblatex docbook2x docbook-xsl xmlto python3 python3-lxml python3-ply \
           dejagnu bison flex libtool libgmp-dev libisl-dev libmpfr-dev rpm2cpio \
           cpio libmpc-dev
+          wget -q https://launchpad.net/ubuntu/+source/cloog/0.18.4-2/+build/14458385/+files/cloog-isl_0.18.4-2_amd64.deb
+          wget -q https://launchpad.net/ubuntu/+source/cloog/0.18.4-2/+build/14458385/+files/libcloog-isl-dev_0.18.4-2_amd64.deb
+          sudo dpkg -i cloog-isl_0.18.4-2_amd64.deb libcloog-isl-dev_0.18.4-2_amd64.deb
 
       - name: Download, extract and patch Source
         run: |
@@ -41,11 +44,11 @@ jobs:
           #git checkout cygwin-${{ env.CYGWIN_V }}
           #cd ..
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
-          wget -q -O cloog.tar.gz http://www.bastoul.net/cloog/pages/download/cloog-${{ env.CLOOG_V }}.tar.gz
+          #wget -q -O cloog.tar.gz http://www.bastoul.net/cloog/pages/download/cloog-${{ env.CLOOG_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
-          tar -xf cocom.tar.gz
+          #tar -xf cocom.tar.gz
           tar -xf cloog.tar.gz
           tar -xf iconv.tar.gz
           cd binutils-${{ env.BINUTILS_V }}
@@ -79,17 +82,17 @@ jobs:
           cat ../0201-Cygwin-ada-shared-prefix.patch | patch -p2
           cd ../cloog-${{ env.CLOOG_V }}
           # patch cloog
-          cat ../use_autoreconf.patch | patch -p1
-          cat ../pull-req-38.diff | patch -p1
-          autoreconf -fi
+          #cat ../use_autoreconf.patch | patch -p1
+          #cat ../pull-req-38.diff | patch -p1
+          #autoreconf -fi
           
-      - name: Build cloog
-        run: |
-          mkdir build-cloog
-          cd build-cloog
-          ../cloog-${{ env.CLOOG_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.CLOOG_O }} CFLAGS="-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security" CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2" LDFLAGS="-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -Wl,-z,defs"
-          make -j2
-          make install -j2
+      #- name: Build cloog
+        #run: |
+          #mkdir build-cloog
+          #cd build-cloog
+          #../cloog-${{ env.CLOOG_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.CLOOG_O }} CFLAGS="-g -O2 -flto=auto -ffat-lto-objects -flto=auto -ffat-lto-objects -fstack-protector-strong -Wformat -Werror=format-security" CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2" LDFLAGS="-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -flto=auto -Wl,-z,relro -Wl,-z,defs"
+          #make -j2
+          #make install -j2
 
       - name: Build cocom
         run: |
