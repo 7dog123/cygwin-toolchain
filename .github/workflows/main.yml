@@ -36,16 +36,15 @@ jobs:
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
-          git clone https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
-          cd cygwin-${{ env.CYGWIN_V }}
-          git checkout cygwin-${{ env.CYGWIN_V }}
-          cd ..
+          #git clone https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
+          #cd cygwin-${{ env.CYGWIN_V }}
+          #git checkout cygwin-${{ env.CYGWIN_V }}
+          #cd ..
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O cloog.tar.gz http://www.bastoul.net/cloog/pages/download/cloog-${{ env.CLOOG_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
-          tar -xf cygwin.tar.gz
           tar -xf cocom.tar.gz
           tar -xf cloog.tar.gz
           tar -xf iconv.tar.gz
@@ -134,16 +133,16 @@ jobs:
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"  || true
           make install -j2
 
-      - name: Build cygwin
-        run: |
-          cd cygwin-${{ env.CYGWIN_V }/winsup
-          ./autogen.sh
-          cd ../..
-          mkdir build-cygwin
-          cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.CYGWIN_O }}
-          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
-          CXXFLAGS+=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
-          CXXFLAGS+=" -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          make -j2
-          make install -j2
+      #- name: Build cygwin
+        #run: |
+          #cd cygwin-${{ env.CYGWIN_V }/winsup
+          #./autogen.sh
+          #cd ../..
+          #mkdir build-cygwin
+          #cd build-cygwin
+          #../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.CYGWIN_O }}
+          #CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
+          #CXXFLAGS+=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
+          #CXXFLAGS+=" -DCYGPORT_RELEASE_INFO='3.4.8-1'"
+          #make -j2
+          #make install -j2
