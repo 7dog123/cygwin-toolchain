@@ -51,7 +51,7 @@ jobs:
           cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
-          cat ../binutils-2.41-cygwin-pep-dll-double-definition.patc | patch -p2
+          cat ../binutils-2.41-cygwin-pep-dll-double-definition.patch | patch -p2
           cat ../binutils-2.41-cygwin-restore-bfd-seek-optimization.patch | patch -p1
           # Patch shared libs
           sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" bfd/configure
