@@ -54,14 +54,14 @@ jobs:
           cat ../binutils-2.41-cygwin-pep-dll-double-definition.patch | patch -p2
           cat ../binutils-2.41-cygwin-restore-bfd-seek-optimization.patch | patch -p1
           # Patch shared libs
-          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" bfd/configure
-          sed -i "s#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="-Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin -lkernel32"#g" bfd/configure
-          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" bfd/configure.ac
-          sed -i "s#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g" bfd/configure.ac
-          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" opcodes/configure
-          sed -i "s#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g" opcodes/configure
-          sed -i "s#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g" opcodes/configure.ac
-          sed -i "s#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g" opcodes/configure.ac
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' bfd/configure
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="-Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin -lkernel32"#g' bfd/configure
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' bfd/configure.ac
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' bfd/configure.ac
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure.ac
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure.ac
           cd ../gcc-${{ env.GCC_V }}
           # patch gcc
           cat ../0001-Cygwin-use-SysV-ABI-on-x86_64.patch | patch -p1
