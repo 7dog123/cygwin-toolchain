@@ -38,7 +38,7 @@ jobs:
           texlive-pictures gdc gfortran git libatomic1 \
           libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev
           wget -q -O autoconf.tar.xz http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
-          tar -xz autoconf.tar.xz
+          tar -xf autoconf.tar.xz
           cd autoconf-2.69
           sed '361 s/{/\\{/' -i bin/autoscan.in
           ./configure --quiet --prefix=/usr
