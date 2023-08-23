@@ -105,9 +105,8 @@ jobs:
           make install -j2
 
       - name: Build Binutils
-        env:
-          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
+          export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-binutils
           cd build-binutils
           ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
@@ -115,9 +114,8 @@ jobs:
           make install -j2
 
       - name: Build gcc
-        env:
-          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
+          export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
           ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_OS1 }}
@@ -131,10 +129,8 @@ jobs:
           make install -j2
 
       - name: Build windows-default-manifest
-        env:
-          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
-          PATH=${{ github.workspace }}/gcc/cygwin/bin:PATH
+          export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-headers
           cd build-headers
           ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin  --host=${{ env.TARGET }} ${{ env.MINGH_O }}
@@ -153,9 +149,8 @@ jobs:
           make install -j2
           
       - name: Build cygwin
-        env:
-          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
+          export BUILD_CC=x86_64-linux-gnu-gcc
           cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
           cd ../..
@@ -168,9 +163,8 @@ jobs:
           make install -j2
 
       - name: Build gcc
-        env:
-          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
+          export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
           ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}
