@@ -12,6 +12,9 @@ env:
   COCOM_O:    ""
   ICONV_V:    "1.17"
   ICONV_O:    "--enable-shared --disable-static --with-libiconv-prefix=no --with-libintl-prefix=no --enable-shared --enable-static --enable-extra-encodings am_cv_proto_iconv_arg1= 'am_cv_proto_iconv=extern size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);'"
+  MING_V:     "11.0.1"
+  MINGH_O:    "--enable-sdk=all --enable-w32api"
+  MINGR_O:    "--enable-w32api --disable-lib32 --enable-lib64"
   TARGET:     "x86_64-pc-cygwin"
   
   
@@ -32,25 +35,33 @@ jobs:
           dejagnu bison flex libtool libgmp-dev libmpfr-dev rpm2cpio \
           cpio libmpc-dev libcloog-isl-dev wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
-          texlive-pictures
+          texlive-pictures gdc gfortran git autoconf-2.69 libatomic1 \
+          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev
 
       - name: Download, extract and patch Source
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
-          #git clone https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
-          #cd cygwin-${{ env.CYGWIN_V }}
-          #git checkout cygwin-${{ env.CYGWIN_V }}
-          #cd ..
+          git clone https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
+          cd cygwin-${{ env.CYGWIN_V }}
+          git checkout cygwin-${{ env.CYGWIN_V }}
+          cd ..
+          git clone https://github.com/jmeubank/windows-default-manifest
+          cd windows-default-manifest
+          aclocal --force
+          autoconf-2.69 --force
+          cd ..
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           #wget -q -O cloog.tar.gz http://www.bastoul.net/cloog/pages/download/cloog-${{ env.CLOOG_V }}.tar.gz
           wget -q -O cloog.tar.gz https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloog/0.18.4-2/cloog_0.18.4.orig.tar.gz
           wget -q -O debian.tar.xz https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cloog/0.18.4-2/cloog_0.18.4-2.debian.tar.xz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
+          wget -q -O mingw.tar.bz2 http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
           tar -xf cocom.tar.gz
           tar -xf iconv.tar.gz
+          tar -xf mingw.tar.bz2
           cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -97,6 +108,41 @@ jobs:
           make -j2
           make install -j2
 
+      - name: build Run time and headers
+        run: |
+          mkdir build-headers
+          cd build-headers
+          ../mingw-w64_${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGH_O }}
+          make -j2
+          make install -j2
+          cd ../
+          mkdir build-runtime
+          cd build-runtime
+          ../mingw-w64_${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGR_O }}
+          make -j2
+          make install -j2
+
+
+      - name: Build cygwin
+        run: |
+          cd cygwin-${{ env.CYGWIN_V }/winsup
+          ./autogen.sh
+          cd ../..
+          mkdir build-cygwin
+          cd build-cygwin
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.CYGWIN_O }}
+          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
+          CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
+          make -j2 CFLAGS=${CFLAGS} CXXFLAGS=${CXXFLAGS}
+          make install -j2
+
+      - name: Build windows-default-manifest
+        run: |
+          mkdir build-manifest
+          cd build=manifest
+          ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin
+          make -j2
+          make install -j2 
       - name: Build binutils
         run: |
           mkdir build-binutils
@@ -118,17 +164,3 @@ jobs:
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
           make install -j2
-
-      #- name: Build cygwin
-        #run: |
-          #cd cygwin-${{ env.CYGWIN_V }/winsup
-          #./autogen.sh
-          #cd ../..
-          #mkdir build-cygwin
-          #cd build-cygwin
-          #../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.CYGWIN_O }}
-          #CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
-          #CXXFLAGS+=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector"
-          #CXXFLAGS+=" -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          #make -j2
-          #make install -j2
