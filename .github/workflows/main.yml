@@ -46,7 +46,8 @@ jobs:
           make install --quiet -j2
           wget -q -O automake.tar.gz https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz
           tar -xf automake.tar.gz
-          cd automake-1.16
+          rm -Rf *tar*
+          cd automake*
           ./configure --quiet --prefix=/usr --program-suffix=-1.16
           make --quiet -j2
           make install --quiet -j2
