@@ -107,7 +107,7 @@ jobs:
 
       - name: Build gcc
         run: |
-          PATH=${{ github.workspace }}/gcc/cygwin/bin:${{ github.workspace }}/gcc/cygwin/${{ env.TARGET }}/bin:$PATH
+          export PATH=${{ github.workspace }}/gcc/cygwin/bin:${{ github.workspace }}/gcc/cygwin/${{ env.TARGET }}/bin:$PATH
           mkdir build-gcc
           cd build-gcc
           ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.GCC_O }}
