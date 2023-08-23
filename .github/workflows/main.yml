@@ -36,23 +36,7 @@ jobs:
           cpio libmpc-dev libcloog-isl-dev wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper \
-          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev 
-          wget -q -O autoconf.tar.xz http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
-          tar -xf autoconf.tar.xz
-          cd autoconf-2.69
-          sed '361 s/{/\\{/' -i bin/autoscan.in
-          ./configure --quiet --prefix=/usr --program-suffix=2.69
-          make --quiet -j2
-          make install --quiet -j2
-          wget -q -O automake.tar.gz https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz
-          tar -xf automake.tar.gz
-          rm -Rf *tar*
-          cd automake*
-          ./bootstrap
-          dh_auto_configure --without autoreconf --no-parallel
-          ./configure --quiet --prefix=/usr --program-suffix=-1.16
-          make --quiet -j2
-          make install --quiet -j2
+          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev
 
       - name: Download, extract and patch Source
         run: |
@@ -64,8 +48,7 @@ jobs:
           cd ..
           git clone https://github.com/jmeubank/windows-default-manifest
           cd windows-default-manifest
-          aclocal-1.16 --force
-          autoconf2.69 --force
+          ./configure --prefix=${{ github.workspace }}/gcc/cygwin
           cd ..
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
