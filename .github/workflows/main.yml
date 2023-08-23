@@ -56,7 +56,6 @@ jobs:
           tar -xf iconv.tar.gz
           tar -xf mingw.tar.bz2
           rm -Rf *tar*
-          ls
           cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -107,13 +106,13 @@ jobs:
         run: |
           mkdir build-headers
           cd build-headers
-          ../mingw-w64_${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGH_O }}
+          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGH_O }}
           make -j2
           make install -j2
           cd ../
           mkdir build-runtime
           cd build-runtime
-          ../mingw-w64_${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGR_O }}
+          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGR_O }}
           make -j2
           make install -j2
 
