@@ -44,6 +44,12 @@ jobs:
           ./configure --quiet --prefix=/usr --program-suffix=2.69
           make --quiet -j2
           make install --quiet -j2
+          wget -q -O automake.tar.gz https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz
+          tar -xf automake.tar.gz
+          cd automake-1.16
+          ./configure --quiet --prefix=/usr --program-suffix=-1.16
+          make --quiet -j2
+          make install --quiet -j2
 
       - name: Download, extract and patch Source
         run: |
@@ -55,8 +61,8 @@ jobs:
           cd ..
           git clone https://github.com/jmeubank/windows-default-manifest
           cd windows-default-manifest
-          aclocal --force
-          autoconf-2.69 --force
+          aclocal-1.16 --force
+          autoconf2.69 --force
           cd ..
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
