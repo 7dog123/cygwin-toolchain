@@ -42,11 +42,11 @@ jobs:
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
-          git clone https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
+          git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
           cd cygwin-${{ env.CYGWIN_V }}
-          git checkout cygwin-${{ env.CYGWIN_V }}
+          git checkout -q cygwin-${{ env.CYGWIN_V }}
           cd ..
-          git clone https://github.com/jmeubank/windows-default-manifest
+          git clone -q https://github.com/jmeubank/windows-default-manifest
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
           wget -q -O mingw.tar.bz2 http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
@@ -56,8 +56,8 @@ jobs:
           tar -xf iconv.tar.gz
           tar -xf mingw.tar.bz2
           rm -Rf *tar*
-          cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
+          cd binutils-${{ env.BINUTILS_V }}
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
           cat ../binutils-2.41-cygwin-pep-dll-double-definition.patch | patch -p2
           cat ../binutils-2.41-cygwin-restore-bfd-seek-optimization.patch | patch -p1
@@ -70,8 +70,8 @@ jobs:
           sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure
           sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure.ac
           sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure.ac
-          cd ../gcc-${{ env.GCC_V }}
           # patch gcc
+          cd ../gcc-${{ env.GCC_V }}
           cat ../0001-Cygwin-use-SysV-ABI-on-x86_64.patch | patch -p1
           cat ../0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch | patch -p1
           cat ../0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch | patch -p1
@@ -85,7 +85,6 @@ jobs:
           cat ../0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
           cat ../0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../0201-Cygwin-ada-shared-prefix.patch | patch -p2
-          cd gcc-${{ env.GCC_V }}
           ./contrib/download_prerequisites
 
       - name: Build cocom
