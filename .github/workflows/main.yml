@@ -35,8 +35,8 @@ jobs:
           dejagnu bison flex libtool libgmp-dev libmpfr-dev rpm2cpio \
           cpio libmpc-dev libcloog-isl-dev wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
-          texlive-pictures gdc gfortran git libatomic1 \
-          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev
+          texlive-pictures gdc gfortran git libatomic1 debhelper \
+          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev 
           wget -q -O autoconf.tar.xz http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
           tar -xf autoconf.tar.xz
           cd autoconf-2.69
@@ -48,6 +48,8 @@ jobs:
           tar -xf automake.tar.gz
           rm -Rf *tar*
           cd automake*
+          ./bootstrap
+          dh_auto_configure --without autoreconf --no-parallel
           ./configure --quiet --prefix=/usr --program-suffix=-1.16
           make --quiet -j2
           make install --quiet -j2
