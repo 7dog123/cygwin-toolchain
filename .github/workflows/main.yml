@@ -102,19 +102,6 @@ jobs:
           make -j2
           make install -j2
 
-      - name: Build cygwin
-        run: |
-          cd cygwin-${{ env.CYGWIN_V }}/winsup
-          ./autogen.sh
-          cd ../..
-          mkdir build-cygwin
-          cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
-          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
-          CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          make -j2
-          make install -j2
-
       - name: Build binutils
         run: |
           mkdir build-binutils
@@ -154,5 +141,18 @@ jobs:
           mkdir build-manifest
           cd build=manifest
           ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }}
+          make -j2
+          make install -j2
+          
+      - name: Build cygwin
+        run: |
+          cd cygwin-${{ env.CYGWIN_V }}/winsup
+          ./autogen.sh
+          cd ../..
+          mkdir build-cygwin
+          cd build-cygwin
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86_64-linux-gnu --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
+          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
+          CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
