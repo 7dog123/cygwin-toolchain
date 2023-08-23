@@ -116,7 +116,7 @@ jobs:
           ___CXXFLAGS="${CXXFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS=${___CXXFLAGS}
-          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"  || true
+          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
           make install -j2
 
       #- name: Build cygwin
