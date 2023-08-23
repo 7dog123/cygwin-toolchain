@@ -104,7 +104,9 @@ jobs:
           make -j2
           make install -j2
 
-      - name: Build binutils
+      - name: Build Binutils
+        env:
+          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
           mkdir build-binutils
           cd build-binutils
@@ -113,6 +115,8 @@ jobs:
           make install -j2
 
       - name: Build gcc
+        env:
+          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
           mkdir build-gcc
           cd build-gcc
@@ -127,6 +131,8 @@ jobs:
           make install -j2
 
       - name: Build windows-default-manifest
+        env:
+          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
           PATH=${{ github.workspace }}/gcc/cygwin/bin:PATH
           mkdir build-headers
@@ -147,6 +153,8 @@ jobs:
           make install -j2
           
       - name: Build cygwin
+        env:
+          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
           cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
@@ -160,6 +168,8 @@ jobs:
           make install -j2
 
       - name: Build gcc
+        env:
+          BUILD_CC=x86_64-linux-gnu-gcc
         run: |
           mkdir build-gcc
           cd build-gcc
@@ -172,3 +182,4 @@ jobs:
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
           make install -j2
+          
