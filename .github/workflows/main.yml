@@ -125,7 +125,7 @@ jobs:
 
       - name: Build cygwin
         run: |
-          cd cygwin-${{ env.CYGWIN_V }/winsup
+          cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
           cd ../..
           mkdir build-cygwin
