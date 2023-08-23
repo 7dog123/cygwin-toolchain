@@ -36,7 +36,7 @@ jobs:
           cpio libmpc-dev libcloog-isl-dev wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper \
-          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev
+          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev mingw*
 
       - name: Download, extract and patch Source
         run: |
