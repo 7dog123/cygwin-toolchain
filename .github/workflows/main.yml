@@ -55,6 +55,8 @@ jobs:
           tar -xf cocom.tar.gz
           tar -xf iconv.tar.gz
           tar -xf mingw.tar.bz2
+          rm -Rf *tar*
+          ls
           cd binutils-${{ env.BINUTILS_V }}
           # Patch binutils
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
