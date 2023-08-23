@@ -41,7 +41,7 @@ jobs:
           tar -xf autoconf.tar.xz
           cd autoconf-2.69
           sed '361 s/{/\\{/' -i bin/autoscan.in
-          ./configure --quiet --prefix=/usr
+          ./configure --quiet --prefix=/usr --program-suffix=2.69
           make --quiet -j2
           make install --quiet -j2
 
