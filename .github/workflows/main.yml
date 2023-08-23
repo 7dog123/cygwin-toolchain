@@ -85,6 +85,8 @@ jobs:
           cat ../0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
           cat ../0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../0201-Cygwin-ada-shared-prefix.patch | patch -p2
+          cd gcc-${{ env.GCC_VERSION }}
+          ./contrib/download_prerequisites
 
       - name: Build cocom
         run: |
