@@ -47,9 +47,6 @@ jobs:
           git checkout cygwin-${{ env.CYGWIN_V }}
           cd ..
           git clone https://github.com/jmeubank/windows-default-manifest
-          cd windows-default-manifest
-          ./configure --prefix=${{ github.workspace }}/gcc/cygwin
-          cd ..
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
           wget -q -O mingw.tar.bz2 http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
@@ -131,13 +128,6 @@ jobs:
           make -j2 CFLAGS=${CFLAGS} CXXFLAGS=${CXXFLAGS}
           make install -j2
 
-      - name: Build windows-default-manifest
-        run: |
-          mkdir build-manifest
-          cd build=manifest
-          ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin
-          make -j2
-          make install -j2 
       - name: Build binutils
         run: |
           mkdir build-binutils
@@ -158,4 +148,13 @@ jobs:
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
+          make install -j2
+
+      - name: Build windows-default-manifest
+        run: |
+          PATH=${{ github.workspace }}/gcc/cygwin/bin:PATH
+          mkdir build-manifest
+          cd build=manifest
+          ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }}
+          make -j2
           make install -j2
