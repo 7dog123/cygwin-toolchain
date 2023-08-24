@@ -126,11 +126,11 @@ jobs:
           fi
           EOF
 
-      - name: make a fake x86_64-pc-cygwin-gcc compiler
+      - name: make a fake x86_64-pc-cygwin-g++ compiler
         run: |
           cat <<EOF > /usr/bin/x86_64-pc-cygwin-g++
           #!/bin/bash
-          bin_dir=`dirname "$0"``
+          bin_dir=`dirname "$0"`
           if [ "$1" != "-cc1" ]; then
               "$bin_dir/x86_64-w64-mingw32-g++" --target=x86_64-pc-cygwin "$@"
           else
