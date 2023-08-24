@@ -117,37 +117,34 @@ jobs:
         run: |
           cat <<EOF > /usr/bin/x86_64-pc-cygwin-gcc
           #!/bin/bash
-          echo "Simulating x86_64-pc-cygwin-gcc: \$@"
-
-          # Check for specific options or arguments and respond accordingly
-          while [[ \$# -gt 0 ]]; do
-              case "\$1" in
-                  -c)
-                      # If compiling, simulate a successful compilation
-                      echo "Simulating successful compilation..."
-                      exit 0
-                      ;;
-                  -o)
-                      # If specifying an output file, capture it and simulate success
-                      output_file="\$2"
-                      echo "Simulating successful compilation with output to: \$output_file"
-                      exit 0
-                      ;;
-                  *)
-                      # Handle other options or arguments as needed
-                      ;;
-              esac
-              shift
-          done
-
-          # If no recognized options were provided, simulate a generic success
-          echo "Simulating a generic successful operation..."
-          exit 0
+          bin_dir=`dirname "$0"`
+          if [ "$1" != "-cc1" ]; then
+              "$bin_dir/x86_64-w64-mingw32-gcc" --target=x86_64-pc-cygwin "$@"
+          else
+              # Target is already an argument.
+              "$bin_dir/x86_64-w64-mingw32-gcc" "$@"
+          fi
           EOF
 
-      - name: Make /usr/bin/x86_64-pc-cygwin-gcc Executable
-        run: chmod +x /usr/bin/x86_64-pc-cygwin-gcc
-      
+      - name: make a fake x86_64-pc-cygwin-gcc compiler
+        run: |
+          cat <<EOF > /usr/bin/x86_64-pc-cygwin-g++
+          #!/bin/bash
+          bin_dir=`dirname "$0"``
+          if [ "$1" != "-cc1" ]; then
+              "$bin_dir/x86_64-w64-mingw32-g++" --target=x86_64-pc-cygwin "$@"
+          else
+              # Target is already an argument.
+              "$bin_dir/x86_64-w64-mingw32-g++" "$@"
+          fi
+          EOF
+
+      - name: Make /usr/bin/x86_64-pc-cygwin-{gcc,g++} Executable
+        run: chmod +x /usr/bin/x86_64-pc-cygwin-{gcc,g++}
+
+      - name: Link binutils
+        run: ln -sf /usr/bin/x86_64-w64-mingw32-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip} /usr/bin/${{ env.TARGET }}-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip}
+        
       - name: Build gcc
         run: |
           export BUILD_CC=x86_64-linux-gnu-gcc
