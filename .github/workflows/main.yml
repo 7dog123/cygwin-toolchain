@@ -115,7 +115,7 @@ jobs:
 
       - name: make a fake x86_64-pc-cygwin-gcc compiler
         run: |
-          cat <<EOF > ${{ github.workspace }}/gcc/cygwin/bin/x86_64-pc-cygwin-gcc
+          cat <<EOF > /usr/bin/x86_64-pc-cygwin-gcc
           #!/bin/bash
           echo "Simulating x86_64-pc-cygwin-gcc: \$@"
 
@@ -145,8 +145,8 @@ jobs:
           exit 0
           EOF
 
-      - name: Make ${{ github.workspace }}/gcc/cygwin/bin/x86_64-pc-cygwin-gcc Executable
-        run: chmod +x ${{ github.workspace }}/gcc/cygwin/bin/x86_64-pc-cygwin-gcc
+      - name: Make /usr/bin/x86_64-pc-cygwin-gcc Executable
+        run: chmod +x /usr/bin/x86_64-pc-cygwin-gcc
       
       - name: Build gcc
         run: |
