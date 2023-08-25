@@ -33,10 +33,13 @@ jobs:
           sudo apt-get install -y build-essential autoconf automake patch perl \
           dblatex docbook2x docbook-xsl xmlto python3 python3-lxml python3-ply \
           dejagnu bison flex libtool libgmp-dev libmpfr-dev rpm2cpio \
-          cpio libmpc-dev libcloog-isl-dev wget make zlib1g-dev libc6-dev \
+          cpio libmpc-dev software-properties-common wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper \
-          libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev *mingw*
+          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev *mingw*
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y libcloog-isl-dev
 
       - name: Download, extract and patch Source
         run: |
