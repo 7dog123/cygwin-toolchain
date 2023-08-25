@@ -120,11 +120,11 @@ jobs:
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS1 }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS1 }} CPPFLAGS=" -I/usr/x86_64-w64-mingw32/include"
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
-          ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12] -I/usr/x86_64-w64-mingw32/include"
-          ___CXXFLAGS="${CXXFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12] -I/usr/x86_64-w64-mingw32/include"
+          ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
+          ___CXXFLAGS="${CXXFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
@@ -169,11 +169,11 @@ jobs:
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}  CPPFLAGS=" -I/usr/x86_64-w64-mingw32/include"
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
-          ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12] -I/usr/x86_64-w64-mingw32/include"
-          ___CXXFLAGS="${CXXFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12] -I/usr/x86_64-w64-mingw32/include"
+          ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
+          ___CXXFLAGS="${CXXFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
