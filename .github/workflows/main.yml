@@ -75,7 +75,7 @@ jobs:
             curl -LO -q "$URL{1,2,3,4,5}"
             echo "download_status=success" >> $GITHUB_OUTPUT
           elif command -v aria2c >/dev/null 2>@1; then
-            aria2c -c -s 16 -x 16 "$URL{1,2,3,4,5}
+            aria2c -c -s 16 -x 16 "$URL{1,2,3,4,5}"
             echo "download_status=success" >> $GITHUB_OUTPUT
           fi
         env:
