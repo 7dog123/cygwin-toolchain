@@ -5,7 +5,8 @@ env:
   BINUTILS_V: "2.41"
   BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-64-bit-bfd --enable-install-libiberty --enable-targets=x86_64-pep --with-system-zlib --with-gcc-major-version-only --enable-shared --enable-host-shared --with-sysroot=${{ github.workspace }}/gcc/cygwin"
   GCC_V:      "11.4.0"
-  GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=c,c++ --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --with-cloog-include=/usr/include/cloog-isl --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts"
+  GCC_OS1:    "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=c --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --with-cloog-include=/usr/include/cloog-isl --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts --without-headers"
+  GCC_OS2:    "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=c,c++ --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --with-cloog-include=/usr/include/cloog-isl --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts --with-sysroot=${{ github.workspace }}/gcc/cygwin"
   CYGWIN_V:   "3.4.8"
   CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix"
   COCOM_V:    "0.996"
@@ -21,7 +22,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ubuntu:18.04
 
     steps:
       - uses: actions/checkout@v3
@@ -29,7 +29,6 @@ jobs:
       - name: Install dependencies
         run: |
           apt-get update
-          DEBIAN_FRONTEND=noninteractive TZ=US/Central \
           apt-get install -y build-essential autoconf automake patch perl \
           dblatex docbook2x docbook-xsl xmlto python3 python3-lxml python3-ply \
           dejagnu bison flex libtool libgmp-dev libmpfr-dev rpm2cpio \
@@ -38,92 +37,24 @@ jobs:
           texlive-pictures gdc gfortran git libatomic1 debhelper \
           libgomp1 libquadmath0 libobjc-7-dev libgfortran-7-dev *mingw*
 
-      - name: Check if command exists
-        id: check_command
+      - name: Download, extract and patch Source
         run: |
-          if ! command -v "wget" >/dev/null 2>&1; then
-            echo "wget is not installed"
-            echo "wget_installed=false" >> $GITHUB_OUTPUT
-          else
-            echo "wget is installed"
-            echo "wget_installed=true" >> $GITHUB_OUTPUT
-          fi
-          if ! command -v "curl" >/dev/null 2>&1; then
-            echo "curl is not installed"
-            echo "curl_installed=false" >> $GITHUB_OUTPUT
-          else
-            echo "curl is installed"
-            echo "curl_installed=true" >> $GITHUB_OUTPUT
-          fi
-          if ! command -v "aria2c" >/dev/null 2>&1; then
-            echo "aria2ct is not installed"
-            echo "aria2c_installed=false" >> $GITHUB_OUTPUT
-          else
-            echo "aria2c is installed"
-            echo "aria2c_installed=true" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
-      - name: Download
-        id: download
-        if: steps.check_command.outputs.wget_installed == 'true' || steps.check_command.outputs.curl_installed == 'true' || steps.check_command.outputs.aria2c_installed == 'true'
-        run: |
-          if   command -v wget >/dev/null 2>&1; then
-            wget -c -q "$URL{1,2,3,4,5}"
-            echo "download_status=success" >> $GITHUB_OUTPUT
-          elif command -v curl >/dev/null 2>&1; then
-            curl -LO -q "$URL{1,2,3,4,5}"
-            echo "download_status=success" >> $GITHUB_OUTPUT
-          elif command -v aria2c >/dev/null 2>@1; then
-            aria2c -c -s 16 -x 16 "$URL{1,2,3,4,5}"
-            echo "download_status=success" >> $GITHUB_OUTPUT
-          fi
-        env:
-          URL1: https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
-          URL2: https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
-          URL3: https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
-          URL4: https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
-          URL5: http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
-
-      - name: Clone github repo's
-        run: |
+          wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
+          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
           git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
           cd cygwin-${{ env.CYGWIN_V }}
           git checkout -q cygwin-${{ env.CYGWIN_V }}
           cd ..
           git clone -q https://github.com/jmeubank/windows-default-manifest
-
-      - name: Check if tarballs exist
-        id: check-tarballs
-        run: |
-          if [ -f "$1.tar.xz" ] || [ -f "$1.tar.gz" ] || [ -f "$1.tar.bz2" ]; then
-            echo "exists=true"
-          else
-            echo "exists=false"
-          fi
-        shell: bash
-
-      - name: Unpack tarballs
-        if: steps.check-tarballs.outputs.exists == 'true'
-        run: |
-          unpack () {
-            if [ -f "$1.tar.xz" ]; then
-              tar -xf "$1.tar.xz"
-            elif [ -f "$1.tar.gz" ]; then
-              tar -xf "$1.tar.gz"
-            elif [ -f "$1.tar.bz2" ]; then
-              tar -xf "$1.tar.bz2"
-            fi
-            }
-          unpack  binutils-${{ env.BINUTILS_V }}.tar.xz
-          unpack  gcc-${{ env.GCC_V }}.tar.xz
-          unpack  cocom-${{ env.COCOM_V }}.tar.gz
-          unpack  iconv-${{ env.ICONV_V }}.tar.gz
-          unpack  mingw-${{ env.MING_V_V }}.tar.bz2
+          wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
+          wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
+          wget -q -O mingw.tar.bz2 http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
+          tar -xf binutils.tar.xz
+          tar -xf gcc.tar.xz
+          tar -xf cocom.tar.gz
+          tar -xf iconv.tar.gz
+          tar -xf mingw.tar.bz2
           rm -Rf *tar*
-
-      - name: Patch files
-        run: |
           # Patch binutils
           cd binutils-${{ env.BINUTILS_V }}
           cat ../binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -153,18 +84,39 @@ jobs:
           cat ../0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
           cat ../0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../0201-Cygwin-ada-shared-prefix.patch | patch -p2
-
-      - name: download gcc dependencies
-        run: |
-          cd gcc-${{ env.GCC_V }}
           ./contrib/download_prerequisites
 
-      - name: Check CPU cores
-        id: cpu-cores
+      - name: make a fake x86_64-pc-cygwin-gcc compiler
         run: |
-          echo "CPU_CORES=$(nproc)" >> $GITHUB_ENV
-        shell: bash
-        
+          cat <<EOF > /usr/bin/x86_64-pc-cygwin-gcc
+          #!/bin/bash
+          bin_dir=`dirname "$0"`
+          if [ "$1" != "-cc1" ]; then
+              "$bin_dir/x86_64-w64-mingw32-gcc" --target=x86_64-pc-cygwin "$@"
+          else
+              # Target is already an argument.
+              "$bin_dir/x86_64-w64-mingw32-gcc" "$@"
+          fi
+          EOF
+
+      - name: make a fake x86_64-pc-cygwin-g++ compiler
+        run: |
+          cat <<EOF > /usr/bin/x86_64-pc-cygwin-g++
+          #!/bin/bash
+          bin_dir=`dirname "$0"`
+          if [ "$1" != "-cc1" ]; then
+              "$bin_dir/x86_64-w64-mingw32-g++" --target=x86_64-pc-cygwin "$@"
+          else
+              # Target is already an argument.
+              "$bin_dir/x86_64-w64-mingw32-g++" "$@"
+          fi
+          EOF
+
+      - name: Make /usr/bin/x86_64-pc-cygwin-{gcc,g++} Executable
+        run: |
+          chmod +x /usr/bin/x86_64-pc-cygwin-gcc
+          chmod +x /usr/bin/x86_64-pc-cygwin-g++
+
       - name: Build cocom
         run: |
           mkdir build-cocom
@@ -186,16 +138,19 @@ jobs:
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-binutils
           cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
           make -j2
           make install -j2
 
+      - name: Link binutils
+        run: ln -sf /usr/bin/x86_64-w64-mingw32-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip} /usr/bin/${{ env.TARGET }}-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip}
+        
       - name: Build gcc
         run: |
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_O }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_OS1 }}
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
           ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
@@ -233,9 +188,24 @@ jobs:
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86_64-linux-gnu --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
 
+      - name: Build gcc
+        run: |
+          export BUILD_CC=x86_64-linux-gnu-gcc
+          mkdir build-gcc
+          cd build-gcc
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}
+          MAKEOPTS=" -Otarget"
+          export glibcxx_cv_realpath=yes
+          ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
+          ___CXXFLAGS="${CXXFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
+          CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
+          CXXFLAGS=${___CXXFLAGS}
+          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
+          make install -j2
+          
