@@ -115,9 +115,6 @@ jobs:
           make -j2
           sudo make install -j2
 
-      - name: Link binutils
-        run: ln -sf /usr/bin/x86_64-w64-mingw32-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip} /usr/bin/${{ env.TARGET }}-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip}
-        
       - name: Build gcc
         run: |
           export BUILD_CC=x86_64-linux-gnu-gcc
