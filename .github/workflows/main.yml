@@ -37,9 +37,6 @@ jobs:
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper \
           libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev *mingw*
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
-          sudo apt-get install -y libcloog-isl-dev
 
       - name: Download, extract and patch Source
         run: |
@@ -89,6 +86,9 @@ jobs:
           cat ../0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../0201-Cygwin-ada-shared-prefix.patch | patch -p2
           ./contrib/download_prerequisites
+          wget -q http://ftp.kaist.ac.kr/macports/distfiles/cloog/cloog-0.18.4.tar.gz
+          tar -xf cloog-0.18.4.tar.gz
+          ln -sf cloog-0.18.4 cloog
 
       - name: make a fake x86_64-pc-cygwin-gcc compiler
         run: |
