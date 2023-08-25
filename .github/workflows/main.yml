@@ -43,31 +43,41 @@ jobs:
         run: |
           if ! command -v "wget" >/dev/null 2>&1; then
             echo "wget is not installed"
-            echo "::set-output name=wget_installed::false"
+            echo "wget_installed=false" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=wget_installed::true"
+            echo "wget is installed"
+            echo "wget_installed=true" >> $GITHUB_OUTPUT
           fi
           if ! command -v "curl" >/dev/null 2>&1; then
             echo "curl is not installed"
-            echo "::set-output name=curl_installed::false"
+            echo "curl_installed=false" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=curl_installed::true"
+            echo "curl is installed"
+            echo "curl_installed=true" >> $GITHUB_OUTPUT
+          fi
+          if ! command -v "aria2c" >/dev/null 2>&1; then
+            echo "aria2ct is not installed"
+            echo "aria2c_installed=false" >> $GITHUB_OUTPUT
+          else
+            echo "aria2c is installed"
+            echo "aria2c_installed=true" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
       - name: Download
+        id: download
         if: steps.check_command.outputs.wget_installed == 'true' || steps.check_command.outputs.curl_installed == 'true'
         run: |
           if   command -v wget >/dev/null 2>&1; then
-            wget -c -q "$URL"
+            wget -c -q "$URL{1,2,3,4,5}"
+            echo "download_status=success" >> $GITHUB_OUTPUT
           elif command -v curl >/dev/null 2>&1; then
             curl -LO -q "$URL{1,2,3,4,5}"
+            echo "download_status=success" >> $GITHUB_OUTPUT
+          elif command -v aria2c >/dev/null 2>@1; then
+            aria2c -c -s 16 -x 16 "$URL{1,2,3,4,5}
+            echo "download_status=success" >> $GITHUB_OUTPUT
           fi
-          git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
-          cd cygwin-${{ env.CYGWIN_V }}
-          git checkout -q cygwin-${{ env.CYGWIN_V }}
-          cd ..
-          git clone -q https://github.com/jmeubank/windows-default-manifest
         env:
           URL1: binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           URL2: gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
@@ -75,13 +85,21 @@ jobs:
           URL4: iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
           URL5: mingw.tar.bz2 http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
 
+      - name: Clone github repo's
+        run: |
+          git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
+          cd cygwin-${{ env.CYGWIN_V }}
+          git checkout -q cygwin-${{ env.CYGWIN_V }}
+          cd ..
+          git clone -q https://github.com/jmeubank/windows-default-manifest
+
       - name: Check if tarballs exist
         id: check-tarballs
         run: |
           if [ -f "your_filename_prefix.tar.xz" ] || [ -f "your_filename_prefix.tar.gz" ] || [ -f "your_filename_prefix.tar.bz2" ]; then
-            echo "::set-output name=exists::true"
+            echo "exists=true"
           else
-            echo "::set-output name=exists::false"
+            echo "exists=false"
           fi
         shell: bash
 
