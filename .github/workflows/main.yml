@@ -111,7 +111,7 @@ jobs:
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-binutils
           cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
           make -j2
           sudo make install -j2
 
@@ -120,7 +120,7 @@ jobs:
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_OS1 }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS1 }}
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
           ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
@@ -169,7 +169,7 @@ jobs:
           export BUILD_CC=x86_64-linux-gnu-gcc
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
           ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
