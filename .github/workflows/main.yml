@@ -96,7 +96,7 @@ jobs:
           cd build-cocom
           ../cocom-${{ env.COCOM_V }}/configure --prefix=/usr ${{ env.COCOM_O }}
           make -j2
-          make install -j2
+          sudo make install -j2
 
       - name: Build libiconv
         run: |
@@ -104,7 +104,7 @@ jobs:
           cd build-icon
           ../libiconv-${{ env.ICONV_V }}/configure --prefix=/usr ${{ env.ICONV_O }}
           make -j2
-          make install -j2
+          sudo make install -j2
 
       - name: Build Binutils
         run: |
@@ -113,7 +113,7 @@ jobs:
           cd build-binutils
           ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-w64-mingw32 --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
           make -j2
-          make install -j2
+          sudo make install -j2
 
       - name: Link binutils
         run: ln -sf /usr/bin/x86_64-w64-mingw32-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip} /usr/bin/${{ env.TARGET }}-{ar,as,dlltool,ld,ld.bfd,nm,objcopy,objdump,ranlib,readelf,strip}
@@ -131,7 +131,7 @@ jobs:
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
-          make install -j2
+          sudo make install -j2
 
       - name: Build windows-default-manifest
         run: |
@@ -140,18 +140,18 @@ jobs:
           cd build-headers
           ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin  --host=${{ env.TARGET }} ${{ env.MINGH_O }}
           make -j2
-          make install -j2
+          sudo make install -j2
           cd ../
           mkdir build-runtime
           cd build-runtime
           ../mingw-w64-v${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }} ${{ env.MINGR_O }}
           make -j2
-          make install -j2
+          sudo make install -j2
           mkdir build-manifest
           cd build=manifest
           ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }}
           make -j2
-          make install -j2
+          sudo make install -j2
           
       - name: Build cygwin
         run: |
@@ -165,7 +165,7 @@ jobs:
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
-          make install -j2
+          sudo make install -j2
 
       - name: Build gcc
         run: |
@@ -180,5 +180,5 @@ jobs:
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS=${___CXXFLAGS}
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
-          make install -j2
+          sudo make install -j2
           
