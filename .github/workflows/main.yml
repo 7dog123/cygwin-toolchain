@@ -106,21 +106,41 @@ jobs:
           make -j2
           sudo make install -j2
 
+      - name: Build windows-default-manifest
+        run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          mkdir build-headers
+          cd build-headers
+          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGH_O }}
+          make -j2
+          sudo make install -j2
+          cd ../
+          mkdir build-runtime
+          cd build-runtime
+          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.MINGR_O }}
+          make -j2
+          sudo make install -j2
+          mkdir build-manifest
+          cd build=manifest
+          ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin
+          make -j2
+          sudo make install -j2
+          
       - name: Build Binutils
         run: |
-          export BUILD_CC=x86_64-linux-gnu-gcc
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-binutils
           cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.BINUTILS_O }}
           make -j2
           sudo make install -j2
 
       - name: Build gcc
         run: |
-          export BUILD_CC=x86_64-linux-gnu-gcc
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS1 }} CPPFLAGS=" -I/usr/x86_64-w64-mingw32/include"
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.GCC_OS1 }} CPPFLAGS="-I${{ github.workspace }}/gcc/cygwin/include"
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
           ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
@@ -130,35 +150,15 @@ jobs:
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
           sudo make install -j2
 
-      - name: Build windows-default-manifest
-        run: |
-          export BUILD_CC=x86_64-linux-gnu-gcc
-          mkdir build-headers
-          cd build-headers
-          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin  --host=${{ env.TARGET }} ${{ env.MINGH_O }}
-          make -j2
-          sudo make install -j2
-          cd ../
-          mkdir build-runtime
-          cd build-runtime
-          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }} ${{ env.MINGR_O }}
-          make -j2
-          sudo make install -j2
-          mkdir build-manifest
-          cd build=manifest
-          ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }}
-          make -j2
-          sudo make install -j2
-          
       - name: Build cygwin
         run: |
-          export BUILD_CC=x86_64-linux-gnu-gcc
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86_64-linux-gnu --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
@@ -166,10 +166,10 @@ jobs:
 
       - name: Build gcc
         run: |
-          export BUILD_CC=x86_64-linux-gnu-gcc
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin  --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=${{ env.TARGET }} ${{ env.GCC_OS2 }}  CPPFLAGS=" -I/usr/x86_64-w64-mingw32/include"
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.GCC_OS2 }} CPPFLAGS="-I${{ github.workspace }}/gcc/cygwin/include"
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
           ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
