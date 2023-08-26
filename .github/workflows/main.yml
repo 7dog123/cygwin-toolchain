@@ -36,7 +36,8 @@ jobs:
           libmpc-dev software-properties-common wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper autotools-dev \
-          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf libwine-dev
+          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf libwine-dev \
+          *mingw*
           sudo apt-get build-dep -y mingw-w64
 
       - name: Download, extract and patch Source
