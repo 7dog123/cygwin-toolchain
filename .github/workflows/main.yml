@@ -32,11 +32,11 @@ jobs:
           sudo apt-get full-upgrade -y
           sudo apt-get install -y build-essential autoconf automake patch perl \
           dblatex docbook2x docbook-xsl xmlto python3 python3-lxml python3-ply \
-          dejagnu bison flex libtool libgmp-dev libmpfr-dev \
+          dejagnu bison flex libtool libgmp-dev libmpfr-dev libwine-development-dev \
           libmpc-dev software-properties-common wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
-          texlive-pictures gdc gfortran git libatomic1 debhelper \
-          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf
+          texlive-pictures gdc gfortran git libatomic1 debhelper autotools-dev \
+          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf libwine-dev
           sudo apt-get build-dep -y mingw-w64
 
       - name: Download, extract and patch Source
@@ -109,11 +109,8 @@ jobs:
           abi=2
           libcharset_abi=1
           make -j1 -f Makefile.devel lib/aliases.h
-          cp -f srcm4/* m4
-          pushd libcharset
-          autoreconf -fiv
-          popd
-          autoreconf -fiv
+          aclocal "-I ${{ github.workspace }}/libiconv-${{ env.ICONV_V }}/m4 -I ${{ github.workspace }}/libiconv-${{ env.ICONV_V }}/srcm4" --force
+          autoreconf
 
       - name: Build cocom
         run: |
@@ -136,7 +133,7 @@ jobs:
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-headers
           cd build-headers
-          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32 ${{ env.MINGH_O }}
+          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32 ${{ env.MINGH_O }} CPPFLAGS="-I/usr/include -I/usr/x86_64-w64-mingw32/include -I/usr/include/wine/wine/windows -I/usr/include/wine-development/wine/windows"
           make -j2
           sudo make install -j2
           cd ../
