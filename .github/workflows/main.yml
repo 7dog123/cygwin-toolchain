@@ -104,6 +104,7 @@ jobs:
           cat ../patches/iconv/1.17-wchar.patch | patch -p2
           cat ../patches/iconv/1.16-cross-install.patch | patch -p1
           cat ../patches/iconv/1.16-aliases.patch | patch -p1
+          cat ../patches/iconv/libiconv-1.16-msysize.patch | patch -Nbp1
           abi=2
           libcharset_abi=1
           make -j1 -f Makefile.devel lib/aliases.h
