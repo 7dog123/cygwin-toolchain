@@ -107,7 +107,7 @@ jobs:
           abi=2
           libcharset_abi=1
           make -j1 -f Makefile.devel lib/aliases.h
-          aclocal -I $m4 -I srcm4
+          aclocal -I ${{ github.workspace }}/libiconv-${{ env.ICONV_V }}/m4 -I ${{ github.workspace }}/libiconv-${{ env.ICONV_V }}/srcm4
           autoreconf
 
       - name: Build cocom
