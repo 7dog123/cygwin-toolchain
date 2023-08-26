@@ -1,0 +1,27 @@
+Description: Don’t error out on non-Windows CPUs
+Author: Stephen Kitt <skitt@debian.org>
+
+This works for Debian because widl is always prefixed, so the default
+target CPU can be determined from the executable name. We don't case
+about the build architecture.
+
+--- a/mingw-w64-tools/widl/tools.h
++++ b/mingw-w64-tools/widl/tools.h
+@@ -88,7 +88,7 @@
+ 
+ struct target
+ {
+-    enum { CPU_i386, CPU_x86_64, CPU_ARM, CPU_ARM64 } cpu;
++    enum { CPU_i386, CPU_x86_64, CPU_ARM, CPU_ARM64, CPU_UNSPECIFIED } cpu;
+ 
+     enum
+     {
+@@ -450,7 +450,7 @@
+ #elif defined(__aarch64__)
+     target.cpu = CPU_ARM64;
+ #else
+-#error Unsupported CPU
++    target.cpu = CPU_UNSPECIFIED;
+ #endif
+ 
+ #ifdef __APPLE__
