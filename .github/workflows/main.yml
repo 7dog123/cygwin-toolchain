@@ -27,6 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo sed -i 's/# deb-src/deb-src/g' /etc/apt/sources.list
           sudo apt-get update
           sudo apt-get full-upgrade -y
           sudo apt-get install -y build-essential autoconf automake patch perl \
@@ -35,8 +36,8 @@ jobs:
           libmpc-dev software-properties-common wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper \
-          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev *mingw* \
-          libwine-dev gperf
+          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf
+          sudo apt-get build-dep -y mingw-w64
 
       - name: Download, extract and patch Source
         run: |
