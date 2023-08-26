@@ -36,7 +36,7 @@ jobs:
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper \
           libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev *mingw* \
-          libwine-dev
+          libwine-dev gperf
 
       - name: Download, extract and patch Source
         run: |
