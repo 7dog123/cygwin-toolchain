@@ -50,7 +50,7 @@ jobs:
           gettext-base groff-base intltool-debian libarchive-zip-perl libasan8 \
           libatomic1 libbinutils libc-dev-bin libc6-dev libcc1-0 libcrypt-dev \
           libctf-nobfd0 libctf0 libdebhelper-perl libdpkg-perl libdw1 libelf1 \
-          libfile-stripnondeterminism-perl libgcc-*-dev libgdbm-compat4 libgdbm6 \
+          libfile-stripnondeterminism-perl libgcc-13-dev libgdbm-compat4 libgdbm6 \
           libgomp1 libgprofng0 libgssapi-krb5-2 libhwasan0 libisl23 libitm1 \
           libjansson4 libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblsan0 \
           libmagic-mgc libmagic1 libmpc3 libmpfr6 libnsl-dev libnsl2 libperl5.36 \
@@ -58,7 +58,7 @@ jobs:
           libsub-override-perl libtirpc-common libtirpc-dev libtirpc3 libtool libtsan2 \
           libubsan1 libuchardet0 libxml2 linux-libc-dev lto-disabled-list m4 make \
           man-db mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev patch perl \
-          perl-modules-5.36 po-debconf rpcsvc-proto xz-utils
+          perl-modules-5.36 po-debconf rpcsvc-proto xz-utils libnewlib-dev
           apt-get build-dep -y mingw-w64-tools
 
       - name: Download, extract and patch Source
