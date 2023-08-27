@@ -37,8 +37,28 @@ jobs:
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper autotools-dev \
           libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf libwine-dev \
-          *mingw*
-          sudo apt-get build-dep -y mingw-w64
+          autoconf automake autopoint binutils binutils-common \
+          binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 binutils-x86-64-linux-gnu \
+          bsdextrautils build-essential bzip2 cpp cpp-13 debhelper debugedit \
+          dh-autoreconf dh-strip-nondeterminism dpkg-dev dwz file g++ g++-* gcc \
+          gcc-* gcc-mingw-w64-base gcc-mingw-w64-i686 gcc-mingw-w64-i686-posix \
+          gcc-mingw-w64-i686-posix-runtime gcc-mingw-w64-i686-win32 \
+          gcc-mingw-w64-i686-win32-runtime gcc-mingw-w64-x86-64 \
+          gcc-mingw-w64-x86-64-posix gcc-mingw-w64-x86-64-posix-runtime \
+          gcc-mingw-w64-x86-64-win32 gcc-mingw-w64-x86-64-win32-runtime gettext \
+          gettext-base groff-base intltool-debian libarchive-zip-perl libasan8 \
+          libatomic1 libbinutils libc-dev-bin libc6-dev libcc1-0 libcrypt-dev \
+          libctf-nobfd0 libctf0 libdebhelper-perl libdpkg-perl libdw1 libelf1 \
+          libfile-stripnondeterminism-perl libgcc-*-dev libgdbm-compat4 libgdbm6 \
+          libgomp1 libgprofng0 libgssapi-krb5-2 libhwasan0 libicu72 libisl23 libitm1
+          libjansson4 libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblsan0 \
+          libmagic-mgc libmagic1 libmpc3 libmpfr6 libnsl-dev libnsl2 libperl5.36 \
+          libpipeline1 libquadmath0 libsframe1 libssl3 libstdc++-*-dev \
+          libsub-override-perl libtirpc-common libtirpc-dev libtirpc3 libtool libtsan2 \
+          libubsan1 libuchardet0 libxml2 linux-libc-dev lto-disabled-list m4 make \
+          man-db mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev patch perl \
+          perl-modules-5.36 po-debconf rpcsvc-proto xz-utils
+          sudo apt-get build-dep -y mingw-w64-tools
 
       - name: Download, extract and patch Source
         run: |
@@ -101,7 +121,8 @@ jobs:
           cat ../patches/mingw/genpeimg-file.patch | patch -Np1
           cat ../patches/mingw/widl-cpu.patch | patch -Np1
           cat ../patches/mingw/basetsd-debian.patch | patch -Np1
-          autoreconf
+          find ${{ github.workspace }}/mingw-w64-v${{ env.MING_V }} -name configure.ac ! -path '*/.pc/*' | xargs -n 1 dirname > autoreconf
+          dh_autoreconf
           cd ../libiconv-${{ env.ICONV_V }}
           cat ../patches/iconv/1.17-wchar.patch | patch -p2
           cat ../patches/iconv/1.16-cross-install.patch | patch -p1
