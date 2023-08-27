@@ -165,7 +165,7 @@ jobs:
           make -j2
           make install -j2
           mkdir build-manifest
-          cd build=manifest
+          cd build-manifest
           ../windows-default-manifest.configure --prefix=${{ github.workspace }}/gcc/cygwin
           make -j2
           make install -j2
