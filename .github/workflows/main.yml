@@ -166,7 +166,7 @@ jobs:
           make install -j2
           mkdir build-manifest
           cd build-manifest
-          ../windows-default-manifest/configure --prefix=${{ github.workspace }}/gcc/cygwin
+          ../windows-default-manifest/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32
           make -j2
           make install -j2
           
