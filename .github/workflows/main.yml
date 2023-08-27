@@ -41,8 +41,8 @@ jobs:
           autoconf automake autopoint binutils binutils-common \
           binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 binutils-x86-64-linux-gnu \
           bsdextrautils build-essential bzip2 cpp cpp-13 debhelper debugedit \
-          dh-autoreconf dh-strip-nondeterminism dpkg-dev dwz file g++ g++-* gcc \
-          gcc-* gcc-mingw-w64-base gcc-mingw-w64-i686 gcc-mingw-w64-i686-posix \
+          dh-autoreconf dh-strip-nondeterminism dpkg-dev dwz file g++ g++-13 gcc \
+          gcc-13 gcc-mingw-w64-base gcc-mingw-w64-i686 gcc-mingw-w64-i686-posix \
           gcc-mingw-w64-i686-posix-runtime gcc-mingw-w64-i686-win32 \
           gcc-mingw-w64-i686-win32-runtime gcc-mingw-w64-x86-64 \
           gcc-mingw-w64-x86-64-posix gcc-mingw-w64-x86-64-posix-runtime \
@@ -54,7 +54,7 @@ jobs:
           libgomp1 libgprofng0 libgssapi-krb5-2 libhwasan0 libisl23 libitm1 \
           libjansson4 libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblsan0 \
           libmagic-mgc libmagic1 libmpc3 libmpfr6 libnsl-dev libnsl2 libperl5.36 \
-          libpipeline1 libquadmath0 libsframe1 libssl3 libstdc++-*-dev \
+          libpipeline1 libquadmath0 libsframe1 libssl3 libstdc++-13-dev \
           libsub-override-perl libtirpc-common libtirpc-dev libtirpc3 libtool libtsan2 \
           libubsan1 libuchardet0 libxml2 linux-libc-dev lto-disabled-list m4 make \
           man-db mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev patch perl \
