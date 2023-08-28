@@ -59,7 +59,7 @@ jobs:
           libubsan1 libuchardet0 libxml2 linux-libc-dev lto-disabled-list m4 make \
           man-db mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev patch perl \
           perl-modules-5.36 po-debconf rpcsvc-proto xz-utils libnewlib-dev
-          apt-get build-dep -y mingw-w64-tools
+          apt-get build-dep -y mingw-w64-tools gcc-13 g++-13
 
       - name: Download, extract and patch Source
         run: |
