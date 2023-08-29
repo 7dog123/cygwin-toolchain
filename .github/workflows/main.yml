@@ -77,7 +77,7 @@ jobs:
           tar -xf gcc.tar.xz
           tar -xf cocom.tar.gz
           tar -xf iconv.tar.gz
-          tar -xf mingw.tar.bz2
+          tar -xf mingw.tar.gz
           mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
           rm -Rf *tar*
           # Patch binutils
