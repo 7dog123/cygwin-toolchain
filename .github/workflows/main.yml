@@ -133,12 +133,16 @@ jobs:
           make -j1 -f Makefile.devel lib/aliases.h
           cp -f srcm4/* m4
           autoreconf
+          wget -q -O cygin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
+          mkdir -p ${{ github.workspace }}/gcc/cygwin/include
+          tar -xf cygin-devel.tar.xz -C ${{ github.workspace }}/gcc/cygwin/include
 
       - name: Build cocom
         run: |
           mkdir build-cocom
           cd build-cocom
-          ../cocom-${{ env.COCOM_V }}/configure --prefix=/usr ${{ env.COCOM_O }}
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          ../cocom-${{ env.COCOM_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin/include ${{ env.COCOM_O }}
           make -j2
           make install -j2
 
@@ -146,7 +150,8 @@ jobs:
         run: |
           mkdir build-icon
           cd build-icon
-          ../libiconv-${{ env.ICONV_V }}/configure --prefix=/usr ${{ env.ICONV_O }}
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          ../libiconv-${{ env.ICONV_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin/include ${{ env.ICONV_O }}
           make -j2
           make install -j2
 
