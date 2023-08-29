@@ -133,9 +133,12 @@ jobs:
           make -j1 -f Makefile.devel lib/aliases.h
           cp -f srcm4/* m4
           autoreconf
-          wget -q -O cygin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
-          mkdir -p ${{ github.workspace }}/gcc/cygwin/include
-          tar -xf cygin-devel.tar.xz -C ${{ github.workspace }}/gcc/cygwin/include
+          cd ..
+          wget -q -O cygwin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
+          mkdir -p ${{ github.workspace }}/gcc/cygwin/
+          tar -xf cygwin-devel.tar.xz
+          cd cygwin-devel-${{ env.CYGWIN_V }}-1
+          mv usr/{include,lib} ${{ github.workspace }}/gcc/cygwin
 
       - name: Build cocom
         run: |
