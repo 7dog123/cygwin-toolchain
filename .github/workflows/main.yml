@@ -191,7 +191,7 @@ jobs:
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.GCC_O }} CPPFLAGS="-I/usr/include -I${{ github.workspace }}/gcc/cygwin/include"
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ env.TARGET }} ${{ env.GCC_O }}
           MAKEOPTS=" -Otarget"
           export glibcxx_cv_realpath=yes
           ___CFLAGS="${CFLAGS} -Wformat-security -D_FORTIFY_SOURCE=[12]"
