@@ -72,12 +72,13 @@ jobs:
           git clone -q https://github.com/jmeubank/windows-default-manifest
           wget -q -O cocom.tar.gz https://downloads.sourceforge.net/sourceforge/cocom/cocom-${{ env.COCOM_V }}.tar.gz
           wget -q -O iconv.tar.gz https://ftp.gnu.org/pub/gnu/libiconv/libiconv-${{ env.ICONV_V }}.tar.gz
-          wget -q -O mingw.tar.bz2 http://deb.debian.org/debian/pool/main/m/mingw-w64/mingw-w64_${{ env.MING_V }}.orig.tar.bz2
+          wget -q -O mingw.tar.gz https://ftp.fau.de/macports/distfiles/mingw-w64/mingw-w64-${{ env.MING_V }}.tar.gz
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
           tar -xf cocom.tar.gz
           tar -xf iconv.tar.gz
           tar -xf mingw.tar.bz2
+          mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
           rm -Rf *tar*
           # Patch binutils
           cd binutils-${{ env.BINUTILS_V }}
@@ -109,20 +110,20 @@ jobs:
           cat ../patches/gcc/0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
           ./contrib/download_prerequisites
-          cd ../mingw-w64-v${{ env.MING_V }}
-          cat ../patches/mingw/buildflags.patch | patch -Np1
-          cat ../patches/mingw/spelling-fixes.patch | patch -Np1
-          cat ../patches/mingw/widl-no-context.patch | patch -Np1
-          cat ../patches/mingw/disable-werror.patch | patch -Np1
-          cat ../patches/mingw/missing-cpu-info.patch | patch -Np1
-          cat ../patches/mingw/basetsd-hppa.patch | patch -Np1
-          cat ../patches/mingw/dlltool-temp-prefix.patch | patch -Np1
-          cat ../patches/mingw/reproducible-build.patch | patch -Np1
-          cat ../patches/mingw/widl-pathtools-bsd.patch | patch -Np1
-          cat ../patches/mingw/genpeimg-file.patch | patch -Np1
-          cat ../patches/mingw/widl-cpu.patch | patch -Np1
-          cat ../patches/mingw/basetsd-debian.patch | patch -Np1
-          autoreconf
+          #cd ../mingw-w64-v${{ env.MING_V }}
+          #cat ../patches/mingw/buildflags.patch | patch -Np1
+          #cat ../patches/mingw/spelling-fixes.patch | patch -Np1
+          #cat ../patches/mingw/widl-no-context.patch | patch -Np1
+          #cat ../patches/mingw/disable-werror.patch | patch -Np1
+          #cat ../patches/mingw/missing-cpu-info.patch | patch -Np1
+          #cat ../patches/mingw/basetsd-hppa.patch | patch -Np1
+          #cat ../patches/mingw/dlltool-temp-prefix.patch | patch -Np1
+          #cat ../patches/mingw/reproducible-build.patch | patch -Np1
+          #cat ../patches/mingw/widl-pathtools-bsd.patch | patch -Np1
+          #cat ../patches/mingw/genpeimg-file.patch | patch -Np1
+          #cat ../patches/mingw/widl-cpu.patch | patch -Np1
+          #cat ../patches/mingw/basetsd-debian.patch | patch -Np1
+          #autoreconf
           cd ../libiconv-${{ env.ICONV_V }}
           cat ../patches/iconv/1.17-wchar.patch | patch -p2
           cat ../patches/iconv/1.16-cross-install.patch | patch -p1
@@ -154,7 +155,7 @@ jobs:
         run: |
           mkdir build-headers
           cd build-headers
-          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32 ${{ env.MINGH_O }} CPPFLAGS="-I/usr/include -I/usr/x86_64-w64-mingw32/include -I/usr/include/wine/wine/windows -I/usr/include/wine-development/wine/windows"
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGH_O }}
           make -j2
           make install -j2
 
@@ -162,7 +163,7 @@ jobs:
         run: |
           mkdir build-runtime
           cd build-runtime
-          ../mingw-w64-v${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32 ${{ env.MINGR_O }} CPPFLAGS="-Wdate-time -I${{ github.workspace }}/gcc/cygwin/include"
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGR_O }}
           make -j2
           make install -j2
 
@@ -170,7 +171,7 @@ jobs:
         run: |
           mkdir build-manifest
           cd build-manifest
-          ../windows-default-manifest/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=x86_64-w64-mingw32
+          ../windows-default-manifest/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32
           make -j2
           make install -j2
           
@@ -209,7 +210,7 @@ jobs:
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
