@@ -151,14 +151,14 @@ jobs:
           make -j2
           make install -j2
 
-      #- name: Build headers
-      #  run: |
-      #    export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
-      #    mkdir build-headers
-      #    cd build-headers
-      #    ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGH_O }} CFLAGS="-I${{ github.workspace }}/gcc/cygwin/include" CXXFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include"
-      #    make -j2
-      #    make install -j2
+      - name: Build headers
+        run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          mkdir build-headers
+          cd build-headers
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGH_O }} CFLAGS="-I${{ github.workspace }}/gcc/cygwin/include" CXXFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include"
+          make -j2
+          make install -j2
 
      # - name: Build runtime
      #   run: |
