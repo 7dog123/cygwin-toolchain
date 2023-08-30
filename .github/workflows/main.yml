@@ -230,7 +230,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: cygwin/cygwin
-        ref: cygwin-3.4.8
+        #ref: cygwin-3.4.8
 
     - name: Install cygwin
       uses: cygwin/cygwin-install-action@master
