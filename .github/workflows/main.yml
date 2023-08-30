@@ -135,6 +135,20 @@ jobs:
           cp -f srcm4/* m4
           autoreconf
 
+      - name: Build cygwin
+        run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          cd cygwin-${{ env.CYGWIN_V }}/winsup
+          ./autogen.sh
+          cd ../..
+          mkdir build-cygwin
+          cd build-cygwin
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
+          CFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
+          CXXFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
+          make -j2
+          make install -j2
+  
       - name: Build cocom
         run: |
           mkdir build-cocom
@@ -205,19 +219,5 @@ jobs:
           CFLAGS="${___CFLAGS} -I/usr/x86_64-w64-mingw32/include -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS="${___CXXFLAGS} -I/usr/x86_64-w64-mingw32/include"
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
-          make install -j2
-          
-      - name: Build cygwin
-        run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
-          cd cygwin-${{ env.CYGWIN_V }}/winsup
-          ./autogen.sh
-          cd ../..
-          mkdir build-cygwin
-          cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
-          CFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
-          CXXFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          make -j2
           make install -j2
 
