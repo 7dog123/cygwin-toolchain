@@ -271,9 +271,7 @@ jobs:
         mkdir build &&
         (cd winsup; ./autogen.sh) && 
         cd build &&
-        export CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" &&
-        export CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'" &&
-        ../configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ env.TARGET }} ${{ env.CYGWIN_O }} CFLAGS=${CFLAGS} CXXFLAGS=${CXXFLAGS} &&
+        ../configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ env.TARGET }} ${{ env.CYGWIN_O }} &&
         export MAKEFLAGS=-j$(nproc) &&
         make &&
         make install &&
