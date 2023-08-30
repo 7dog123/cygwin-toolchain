@@ -271,7 +271,7 @@ jobs:
         mkdir build &&
         (cd winsup; ./autogen.sh) && 
         cd build &&
-        ../configure --prefix="${{ github.workspace }}/gcc/cygwin" --build=x86-64-linux-gnu --host=${{ env.TARGET }} ${{ env.CYGWIN_O }} &&
+        ../configure --prefix="${{ github.workspace }}/gcc/cygwin" --build=x86-64-linux-gnu --host=${{ env.TARGET }} &&
         export MAKEFLAGS=-j$(nproc) &&
         make &&
         make install &&
