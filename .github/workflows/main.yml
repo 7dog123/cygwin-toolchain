@@ -267,7 +267,6 @@ jobs:
 
     - name: build cygwin
       run: |
-        cd cygwin
         export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32
         mkdir build
         cd winsup; ./autogen.sh
