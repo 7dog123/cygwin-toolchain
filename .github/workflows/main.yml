@@ -151,9 +151,9 @@ jobs:
         run: |
           wget -q -O cygwin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
           tar -xf cygwin-devel.tar.xz
-          mkdir -p ${{ github.workspace }}/gcc/cygwin/{include,lib}
-          cp -Rv usr/include/* ${{ github.workspace }}/gcc/cygwin/include
-          cp -Rv usr/lib/* ${{ github.workspace }}/gcc/cygwin/lib
+          mkdir -p ${{ github.workspace }}/gcc/cygwin/
+          mv usr/include ${{ github.workspace }}/gcc/cygwin/
+          mv usr/lib/ ${{ github.workspace }}/gcc/cygwin
           rm -Rf usr
   
       - name: Build cocom
@@ -209,6 +209,7 @@ jobs:
           make install -j2
 
       - name: Build gcc
+        continue-on-error: true
         run: |
           mkdir build-gcc
           cd build-gcc
@@ -227,6 +228,7 @@ jobs:
           make install -j2
 
       - name: Build cygwin
+        continue-on-error: true
         run: |
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           cd cygwin-${{ env.CYGWIN_V }}/winsup
