@@ -197,6 +197,16 @@ jobs:
           make -j2
           make install -j2
 
+      - name: install cygwin headers
+        continue-on-error: true
+        run: |
+          wget -q -O cygwin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
+          tar -xf cygwin-devel.tar.xz
+          mkdir -p ${{ github.workspace }}/gcc/cygwin/
+          cp -rv usr/include ${{ github.workspace }}/gcc/cygwin/
+          cp -rv usr/lib/ ${{ github.workspace }}/gcc/cygwin
+          rm -Rf usr
+
       - name: Build headers
         continue-on-error: true
         run: |
@@ -216,16 +226,6 @@ jobs:
           ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGR_O }} CPPFLAGS=" -I${{ github.workspace }}/gcc/cygwin/include"
           make -j2
           make install -j2
-
-      - name: install cygwin headers
-        continue-on-error: true
-        run: |
-          wget -q -O cygwin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
-          tar -xf cygwin-devel.tar.xz
-          mkdir -p ${{ github.workspace }}/gcc/cygwin/
-          mv usr/include ${{ github.workspace }}/gcc/cygwin/
-          mv usr/lib/ ${{ github.workspace }}/gcc/cygwin
-          rm -Rf usr
 
       - name: Build windows default manifest
         continue-on-error: true
