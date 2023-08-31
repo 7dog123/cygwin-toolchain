@@ -36,6 +36,7 @@ jobs:
             apt-cache-${{ runner.os }}-
 
       - name: Install dependencies
+        if: ${{ steps.cache-apt.outputs.cache-hit != 'true' }}
         run: |
           sed -i 's/# deb-src/deb-src/g' /etc/apt/sources.list
           apt-get update
@@ -72,18 +73,27 @@ jobs:
         run: find /var/cache/apt/archives -name '*.deb' > apt.lock
 
       - name: Cache downloaded files
+        id: patched-cache
         uses: actions/cache@v3
         with:
           path: |
+            binutils.tar.xz
             binutils-${{ env.BINUTILS_V }}
+            gcc.tar.xz
             gcc-${{ env.GCC_V }}
             cygwin-${{ env.CYGWIN_V }}
+            cocom.tar.gz
             cocom-${{ env.COCOM_V }}
+            iconv.tar.gz
             iconv-${{ env.ICONV_V }}
+            mingw.tar.gz
             mingw-w64-${{ env.MING_V }}
-          key: patched-cache
+          key: patched-cache-${{ runner.os }}-${{ hashFiles('**/*.tar.{xz,gz}') }}
+          restore-keys: |
+            patched-cache-${{ runner.os }}-
 
       - name: Download, extract and patch Source
+        if: ${{ steps.patched-cache.outputs.cache-hit != 'true' }}
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
