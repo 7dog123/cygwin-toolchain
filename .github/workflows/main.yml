@@ -146,17 +146,9 @@ jobs:
           make -j1 -f Makefile.devel lib/aliases.h
           cp -f srcm4/* m4
           autoreconf
-
-      - name: install cygwin headers
-        run: |
-          wget -q -O cygwin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
-          tar -xf cygwin-devel.tar.xz
-          mkdir -p ${{ github.workspace }}/gcc/cygwin/
-          mv usr/include ${{ github.workspace }}/gcc/cygwin/
-          mv usr/lib/ ${{ github.workspace }}/gcc/cygwin
-          rm -Rf usr
   
       - name: Build cocom
+        continue-on-error: true
         run: |
           mkdir build-cocom
           cd build-cocom
@@ -165,6 +157,7 @@ jobs:
           make install -j2
 
       - name: Build libiconv
+        continue-on-error: true
         run: |
           mkdir build-icon
           cd build-icon
@@ -173,6 +166,7 @@ jobs:
           make install -j2
 
       - name: Build headers
+        continue-on-error: true
         run: |
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-headers
@@ -182,6 +176,7 @@ jobs:
           make install -j2
 
       - name: Build runtime
+        continue-on-error: true
         run: |
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-runtime
@@ -190,7 +185,18 @@ jobs:
           make -j2
           make install -j2
 
+      - name: install cygwin headers
+        continue-on-error: true
+        run: |
+          wget -q -O cygwin-devel.tar.xz https://cygwin.mirror.globo.tech/x86_64/release/cygwin/cygwin-devel/cygwin-devel-3.4.8-1.tar.xz
+          tar -xf cygwin-devel.tar.xz
+          mkdir -p ${{ github.workspace }}/gcc/cygwin/
+          mv usr/include ${{ github.workspace }}/gcc/cygwin/
+          mv usr/lib/ ${{ github.workspace }}/gcc/cygwin
+          rm -Rf usr
+
       - name: Build windows default manifest
+        continue-on-error: true
         run: |
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-manifest
@@ -200,6 +206,7 @@ jobs:
           make install -j2
           
       - name: Build Binutils
+        continue-on-error: true
         run: |
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-binutils
