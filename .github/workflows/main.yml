@@ -64,7 +64,7 @@ jobs:
           libsub-override-perl libtirpc-common libtirpc-dev libtirpc3 libtool libtsan2 \
           libubsan1 libuchardet0 libxml2 linux-libc-dev lto-disabled-list m4 make \
           man-db mingw-w64-common mingw-w64-i686-dev mingw-w64-x86-64-dev patch perl \
-          perl-modules-5.36 po-debconf rpcsvc-proto xz-utils libnewlib-dev gnat-13
+          perl-modules-5.36 po-debconf rpcsvc-proto xz-utils libnewlib-dev gnat-12
           apt-get build-dep gcc-13
 
       - name: Save Apt lock file
