@@ -249,6 +249,13 @@ jobs:
           make -j2
           make install -j2
 
+      - name:  Install Directory
+        if: always()
+        shell: bash
+        run: |
+          git status
+          ls -lR ${{ github.workspace }}/gcc/cygwin
+         
   cygwin-build:
     runs-on: windows-latest
 
