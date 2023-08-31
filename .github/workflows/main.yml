@@ -5,9 +5,9 @@ env:
   BINUTILS_V: "2.41"
   BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-64-bit-bfd --enable-install-libiberty --enable-targets=x86_64-pep --with-system-zlib --with-gcc-major-version-only --enable-shared --enable-host-shared --with-sysroot=${{ github.workspace }}/gcc/cygwin"
   GCC_V:      "11.4.0"
-  GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=c,c++ --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts"
+  GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=ada,c,c++,d,fortran,lto,objc,obj-c++,jit --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts --with-build-sysroot=${{ github.workspace }}/gcc/cygwin"
   CYGWIN_V:   "3.4.8"
-  CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix"
+  CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix --with-build-sysroot=${{ github.workspace }}/gcc/cygwin"
   COCOM_V:    "0.996"
   COCOM_O:    ""
   ICONV_V:    "1.17"
@@ -46,16 +46,14 @@ jobs:
           libmpc-dev software-properties-common wget make zlib1g-dev libc6-dev \
           gettext zstd texlive-fonts-recommended texlive-latex-recommended \
           texlive-pictures gdc gfortran git libatomic1 debhelper autotools-dev \
-          libgomp1 libquadmath0 libobjc-*-dev libgfortran-*-dev gperf libwine-dev \
+          libgomp1 libquadmath0 libobjc-13-dev libgfortran-13-dev gperf libwine-dev \
           autoconf automake autopoint binutils binutils-common \
           binutils-mingw-w64-i686 binutils-mingw-w64-x86-64 binutils-x86-64-linux-gnu \
           bsdextrautils build-essential bzip2 cpp cpp-13 debhelper debugedit \
-          dh-autoreconf dh-strip-nondeterminism dpkg-dev dwz file g++ g++-13 gcc \
-          gcc-13 gcc-mingw-w64-base gcc-mingw-w64-i686 gcc-mingw-w64-i686-posix \
-          gcc-mingw-w64-i686-posix-runtime gcc-mingw-w64-i686-win32 \
-          gcc-mingw-w64-i686-win32-runtime gcc-mingw-w64-x86-64 \
+          dh-autoreconf dh-strip-nondeterminism dpkg-dev dwz file g++-13 gnat-13 \
+          gcc-13 gcc-mingw-w64-base gcc-mingw-w64-x86-64 libz-mingw-w64-dev \
           gcc-mingw-w64-x86-64-posix gcc-mingw-w64-x86-64-posix-runtime \
-          gcc-mingw-w64-x86-64-win32 gcc-mingw-w64-x86-64-win32-runtime gettext \
+          gcc-mingw-w64-x86-64-win32 gcc-mingw-w64-x86-64-win32-runtime win-iconv-mingw-w64-dev \
           gettext-base groff-base intltool-debian libarchive-zip-perl libasan8 \
           libatomic1 libbinutils libc-dev-bin libc6-dev libcc1-0 libcrypt-dev \
           libctf-nobfd0 libctf0 libdebhelper-perl libdpkg-perl libdw1 libelf1 \
@@ -72,6 +70,18 @@ jobs:
 
       - name: Save Apt lock file
         run: find /var/cache/apt/archives -name '*.deb' > apt.lock
+
+      - name: Cache downloaded files
+        uses: actions/cache@v3
+        with:
+          path: |
+            binutils-${{ env.BINUTILS_V }}
+            gcc-${{ env.GCC_V }}
+            cygwin-${{ env.CYGWIN_V }}
+            cocom-${{ env.COCOM_V }}
+            iconv-${{ env.ICONV_V }}
+            mingw-w64-${{ env.MING_V }}
+          key: patched-cache
 
       - name: Download, extract and patch Source
         run: |
@@ -91,7 +101,6 @@ jobs:
           tar -xf iconv.tar.gz
           tar -xf mingw.tar.gz
           mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
-          rm -Rf *tar*
           # Patch binutils
           cd binutils-${{ env.BINUTILS_V }}
           cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -146,13 +155,26 @@ jobs:
           make -j1 -f Makefile.devel lib/aliases.h
           cp -f srcm4/* m4
           autoreconf
-  
+
+      - name: Save cache
+        if: success()
+        uses: actions/cache@v3
+        with:
+         path: |
+            binutils-${{ env.BINUTILS_V }}
+            gcc-${{ env.GCC_V }}
+            cygwin-${{ env.CYGWIN_V }}
+            cocom-${{ env.COCOM_V }}
+            iconv-${{ env.ICONV_V }}
+            mingw-w64-${{ env.MING_V }}
+         key: patched-cache
+
       - name: Build cocom
         continue-on-error: true
         run: |
           mkdir build-cocom
           cd build-cocom
-          ../cocom-${{ env.COCOM_V }}/configure --prefix=/usr ${{ env.COCOM_O }}
+          ../cocom-${{ env.COCOM_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.COCOM_O }}
           make -j2
           make install -j2
 
@@ -161,7 +183,7 @@ jobs:
         run: |
           mkdir build-icon
           cd build-icon
-          ../libiconv-${{ env.ICONV_V }}/configure --prefix=/usr ${{ env.ICONV_O }}
+          ../libiconv-${{ env.ICONV_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.ICONV_O }}
           make -j2
           make install -j2
 
@@ -237,13 +259,12 @@ jobs:
       - name: Build cygwin
         continue-on-error: true
         run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ env.TARGET }} --target=${{ env.TARGET }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'" --with-build-sysroot=${{ github.workspace }}/gcc/cygwin
           make -j2
@@ -253,11 +274,16 @@ jobs:
         if: always()
         shell: bash
         run: |
-          git status
           ls -lR ${{ github.workspace }}/gcc/cygwin
          
-  cygwin-build:
+  windows-build:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - target: x86_64-pc-cygwin
+          pkgarch: x86_64
 
     steps:
     - run: git config --global core.autocrlf input
@@ -270,7 +296,7 @@ jobs:
     - name: Install cygwin
       uses: cygwin/cygwin-install-action@master
       with:
-        platform: x86_64
+        platform: ${{ matrix.pkgarch }}
         packages: >-
           autoconf,
           automake,
@@ -288,8 +314,8 @@ jobs:
           libiconv-devel,
           libzstd-devel,
           make,
-          mingw64-x86_64-gcc-g++,
-          mingw64-x86_64-zlib,
+          mingw64-${{ matrix.pkgarch }}-gcc-g++,
+          mingw64-${{ matrix.pkgarch }}-zlib,
           patch,
           perl,
           python39-lxml,
@@ -304,9 +330,9 @@ jobs:
       run: >-
         export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32 &&
         mkdir build &&
-        (cd winsup; ./autogen.sh) && 
+        (cd winsup; ./autogen.sh) &&
         cd build &&
-        ../configure --prefix="${{ github.workspace }}/gcc/cygwin" --build=x86-64-linux-gnu --host=${{ env.TARGET }} &&
+        ../configure --prefix="${{ github.workspace }}/gcc/cygwin" --build=x86-64-linux-gnu --host=${{ env.TARGET }} -v &&
         export MAKEFLAGS=-j$(nproc) &&
         make &&
         make install &&
@@ -314,6 +340,11 @@ jobs:
         (cd */newlib; make install-info install-man)
       shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
+  archive-builds:
+    runs-on: [windows-latest, ubuntu-latest]
+    needs: [windows-build, linux-build]
+
+    steps:
     - name:  Archive
       uses: actions/upload-artifact@v3
       with:
