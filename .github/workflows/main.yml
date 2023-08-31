@@ -122,20 +122,20 @@ jobs:
           cat ../patches/gcc/0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
           ./contrib/download_prerequisites
-          #cd ../mingw-w64-v${{ env.MING_V }}
-          #cat ../patches/mingw/buildflags.patch | patch -Np1
-          #cat ../patches/mingw/spelling-fixes.patch | patch -Np1
-          #cat ../patches/mingw/widl-no-context.patch | patch -Np1
-          #cat ../patches/mingw/disable-werror.patch | patch -Np1
-          #cat ../patches/mingw/missing-cpu-info.patch | patch -Np1
-          #cat ../patches/mingw/basetsd-hppa.patch | patch -Np1
-          #cat ../patches/mingw/dlltool-temp-prefix.patch | patch -Np1
-          #cat ../patches/mingw/reproducible-build.patch | patch -Np1
-          #cat ../patches/mingw/widl-pathtools-bsd.patch | patch -Np1
-          #cat ../patches/mingw/genpeimg-file.patch | patch -Np1
-          #cat ../patches/mingw/widl-cpu.patch | patch -Np1
-          #cat ../patches/mingw/basetsd-debian.patch | patch -Np1
-          #autoreconf
+          cd ../mingw-w64-${{ env.MING_V }}
+          cat ../patches/mingw/buildflags.patch | patch -Np1
+          cat ../patches/mingw/spelling-fixes.patch | patch -Np1
+          cat ../patches/mingw/widl-no-context.patch | patch -Np1
+          cat ../patches/mingw/disable-werror.patch | patch -Np1
+          cat ../patches/mingw/missing-cpu-info.patch | patch -Np1
+          cat ../patches/mingw/basetsd-hppa.patch | patch -Np1
+          cat ../patches/mingw/dlltool-temp-prefix.patch | patch -Np1
+          cat ../patches/mingw/reproducible-build.patch | patch -Np1
+          cat ../patches/mingw/widl-pathtools-bsd.patch | patch -Np1
+          cat ../patches/mingw/genpeimg-file.patch | patch -Np1
+          cat ../patches/mingw/widl-cpu.patch | patch -Np1
+          cat ../patches/mingw/basetsd-debian.patch | patch -Np1
+          autoreconf
           cd ../libiconv-${{ env.ICONV_V }}
           cat ../patches/iconv/1.17-wchar.patch | patch -p2
           cat ../patches/iconv/1.16-cross-install.patch | patch -p1
