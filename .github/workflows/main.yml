@@ -387,7 +387,6 @@ jobs:
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
           ./contrib/download_prerequisites
           popd
-        shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
       - name: Build Binutils
         continue-on-error: true
