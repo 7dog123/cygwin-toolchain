@@ -348,13 +348,13 @@ jobs:
       - name: Download, extract and patch Source
         run: |
           wget -q -O binutils.tar.gz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.gz
-          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
+          wget -q -O gcc.tar.gz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.gz
           git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
           cd cygwin-${{ env.CYGWIN_V }}
           git checkout -q cygwin-${{ env.CYGWIN_V }}
           cd ..
           tar -xf binutils.tar.gz
-          tar -xf gcc.tar.xz
+          tar -xf gcc.tar.gz
           # Patch binutils
           pushd binutils-${{ env.BINUTILS_V }}
           cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -387,6 +387,7 @@ jobs:
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
           ./contrib/download_prerequisites
           popd
+        shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
       - name: Build Binutils
         continue-on-error: true
@@ -396,6 +397,7 @@ jobs:
           ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.BINUTILS_O }}
           make -j2
           make install -j2
+        shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
       - name: Build gcc
         continue-on-error: true
@@ -414,6 +416,7 @@ jobs:
           CXXFLAGS="${___CXXFLAGS}"
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
           make install -j2
+        shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
           
       - name: Build cygwin
         continue-on-error: true
@@ -428,6 +431,7 @@ jobs:
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
+        shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
   archive-builds:
     runs-on: ubuntu-latest
