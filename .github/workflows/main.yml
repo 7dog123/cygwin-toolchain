@@ -341,6 +341,7 @@ jobs:
             w32api-runtime,
             windows-default-manifest,
             xmlto,
+            xz,
             zlib-devel,
             zlib0
 
