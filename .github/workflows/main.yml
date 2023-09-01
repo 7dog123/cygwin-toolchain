@@ -260,6 +260,10 @@ jobs:
           make -j2
           make install -j2
 
+      - name: Archive Install
+        run: tar -zcvf cygwin-linux.tar.xz ${{ github.workspace }}/gcc/cygwin
+        shell: bash
+      
   windows-build:
     runs-on: windows-latest
     env:
@@ -393,7 +397,7 @@ jobs:
         run: |
           mkdir build-binutils
           cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.BINUTILS_O }}
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" ${{ env.BINUTILS_O }}
           make -j2
           make install -j2
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
@@ -403,7 +407,7 @@ jobs:
         run: |
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.GCC_O }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" ${{ env.GCC_O }}
           export glibcxx_cv_realpath=yes
           ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
           ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
@@ -425,12 +429,16 @@ jobs:
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
+
+      - name: Archive Install
+        run: tar -zcvf cygwin-windows.tar.gz ${{ github.workspace }}/gcc/cygwin
+        shell: powershell
 
   archive-builds:
     runs-on: ubuntu-latest
@@ -444,4 +452,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: repo-archive
-          path: ${{ github.workspace }}/gcc/cygwin
+          path: cygwin-linux.tar.xz cygwin-windows.tar.gz
