@@ -5,7 +5,7 @@ env:
   BINUTILS_V: "2.41"
   BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-64-bit-bfd --enable-install-libiberty --enable-targets=x86_64-pep --with-system-zlib --with-gcc-major-version-only --enable-shared --enable-host-shared --with-sysroot=${{ github.workspace }}/gcc/cygwin"
   GCC_V:      "11.4.0"
-  GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --disable-bootstrap --enable-version-specific-runtime-libs --enable-static --enable-shared --enable-shared-libgcc -disable-__cxa_atexit --disable-sjlj-exceptions --enable-languages=c,c++ --disable-symvers --enable-threads=posix --with-build-sysroot=${{ github.workspace }}/gcc/cygwin"
+  GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=c,c++ --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts --with-build-sysroot=${{ github.workspace }}/gcc/cygwin"
   CYGWIN_V:   "3.4.8"
   CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix --with-build-sysroot=${{ github.workspace }}/gcc/cygwin"
   COCOM_V:    "0.996"
