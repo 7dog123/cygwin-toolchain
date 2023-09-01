@@ -26,15 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Cache Apt packages
-        id: cache-apt
-        uses: actions/cache@v3
-        with:
-          path: /var/cache/apt/archives
-          key: apt-cache
-
       - name: Install dependencies
-        if: ${{ steps.cache-apt.outputs.cache-hit != 'true' }}
         run: |
           sed -i 's/# deb-src/deb-src/g' /etc/apt/sources.list
           apt-get update
@@ -67,34 +59,7 @@ jobs:
           perl-modules-5.36 po-debconf rpcsvc-proto xz-utils libnewlib-dev gnat-12
           apt-get build-dep -y gcc-13
 
-      - name: Save Apt lock file
-        if: success()
-        uses: actions/cache@v3
-        with:
-          path: /var/cache/apt/archives
-          key: apt-cache
-
-      - name: Cache downloaded,unpacked and patched files
-        id: patched-cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            binutils.tar.xz
-            binutils-${{ env.BINUTILS_V }}
-            gcc.tar.xz
-            gcc-${{ env.GCC_V }}
-            cygwin-${{ env.CYGWIN_V }}
-            cocom.tar.gz
-            cocom-${{ env.COCOM_V }}
-            iconv.tar.gz
-            iconv-${{ env.ICONV_V }}
-            mingw.tar.gz
-            mingw-w64-${{ env.MING_V }}
-            windows-default-manifest
-          key: patched-cache
-
       - name: Download, extract and patch Source
-        if: ${{ steps.patched-cache.outputs.cache-hit != 'true' }}
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
@@ -166,20 +131,6 @@ jobs:
           make -j1 -f Makefile.devel lib/aliases.h
           cp -f srcm4/* m4
           autoreconf
-
-      - name: Save cache
-        if: success()
-        uses: actions/cache@v3
-        with:
-         path: |
-            binutils-${{ env.BINUTILS_V }}
-            gcc-${{ env.GCC_V }}
-            cygwin-${{ env.CYGWIN_V }}
-            cocom-${{ env.COCOM_V }}
-            iconv-${{ env.ICONV_V }}
-            mingw-w64-${{ env.MING_V }}
-            windows-default-manifest
-         key: patched-cache
 
       - name: Build cocom
         continue-on-error: true
