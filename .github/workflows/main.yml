@@ -290,7 +290,7 @@ jobs:
       - name: Install Cygwin
         uses: cygwin/cygwin-install-action@master
         with:
-          platform: ${{ matrix.pkgarch }}
+          platform: x86_64
           packages: >-
             autoconf,
             automake,
