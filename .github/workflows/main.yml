@@ -62,7 +62,7 @@ jobs:
       - name: Download, extract and patch Source
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
-          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.xz
+          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-${{ env.GCC_V }}/gcc-${{ env.GCC_V }}.tar.xz
           git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
           cd cygwin-${{ env.CYGWIN_V }}
           git checkout -q cygwin-${{ env.CYGWIN_V }}
@@ -348,7 +348,7 @@ jobs:
       - name: Download, extract and patch Source
         run: |
           wget -q -O binutils.tar.gz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.gz
-          wget -q -O gcc.tar.gz https://sourceware.org/pub/gcc/releases/gcc-$GCC_V/gcc-${{ env.GCC_V }}.tar.gz
+          wget -q -O gcc.tar.gz https://sourceware.org/pub/gcc/releases/gcc-${{ env.GCC_V }}/gcc-${{ env.GCC_V }}.tar.gz
           git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
           cd cygwin-${{ env.CYGWIN_V }}
           git checkout -q cygwin-${{ env.CYGWIN_V }}
