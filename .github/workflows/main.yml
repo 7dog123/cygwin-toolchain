@@ -398,8 +398,8 @@ jobs:
           mkdir build-binutils
           cd build-binutils
           ../binutils-${{ env.BINUTILS_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" ${{ env.BINUTILS_O }}
-          make -j2
-          make install -j2
+          make
+          make install
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
       - name: Build gcc
@@ -417,8 +417,8 @@ jobs:
           ___CXXFLAGS=`echo ${___CXXFLAGS} | sed 's/[[:blank:]]\+/ /g'`
           CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
           CXXFLAGS="${___CXXFLAGS}"
-          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
-          make install -j2
+          make ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
+          make install
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
           
       - name: Build cygwin
@@ -432,8 +432,8 @@ jobs:
           ../cygwin-${{ env.CYGWIN_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          make -j2
-          make install -j2
+          make
+          make install
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
       - name: Archive Install
