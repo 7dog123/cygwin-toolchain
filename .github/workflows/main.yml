@@ -45,6 +45,8 @@ jobs:
           dnf install -y dblatex docbook2X docbook-xsl xmlto
           dnf install -y python3 python3-lxml python3-ply
           fmtutil-sys --byfmt pdflatex && texhash
+          # install wget and git
+          dnf install -y wget git
 
       - name: Download, extract and patch Source
         run: |
@@ -182,6 +184,7 @@ jobs:
             docbook2X,
             gcc-g++,
             gettext-devel,
+            git,
             libatomic1,
             libgcc1,
             libgmp-devel,
@@ -213,6 +216,7 @@ jobs:
             texlive-collection-pictures,
             w32api-headers,
             w32api-runtime,
+            wget,
             windows-default-manifest,
             xmlto,
             xz,
