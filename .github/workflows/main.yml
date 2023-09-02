@@ -18,10 +18,10 @@ jobs:
       matrix:
         include:
         - target: x86_64-pc-cygwin
-          #mingw: x86_64-w64-mingw32
+          mingw: x86_64-w64-mingw32
           pkgarch: 64
         - target: i386-pc-cygwin
-          #mingw: i386-w64-mingw32
+          mingw: i386-w64-mingw32
           pkgarch: 32
         
     name: Fedora cross ${{ matrix.target }}
@@ -109,7 +109,7 @@ jobs:
         run: |
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }} #--with-build-sysroot=/usr/${{ matrix.mingw }}/sysroot/mingw
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }} --with-build-sysroot=/usr/${{ matrix.mingw }}/sysroot/mingw
           export glibcxx_cv_realpath=yes
           ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
           ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
