@@ -58,7 +58,6 @@ jobs:
           cd ..
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
-          mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
           # Patch binutils
           cd binutils-${{ env.BINUTILS_V }}
           cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
