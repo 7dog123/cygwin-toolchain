@@ -18,9 +18,9 @@ jobs:
       matrix:
         include:
         - target: x86_64-pc-cygwin
-          pkgarch: x86_64
+          pkgarch: 64
         - target: i386-pc-cygwin
-          pkgarch: i386
+          pkgarch: 32
     name: Fedora cross ${{ matrix.pkgarch }}
 
     steps:
