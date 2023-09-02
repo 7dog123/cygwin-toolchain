@@ -42,7 +42,7 @@ jobs:
           dnf copr enable -y yselkowitz/cygwin
           dnf install -y cygwin${{ matrix.pkgarch }}-gcc-c++ cygwin${{ matrix.pkgarch }}-gettext cygwin${{ matrix.pkgarch }}-libbfd cygwin${{ matrix.pkgarch }}-libiconv cygwin${{ matrix.pkgarch }}-zlib
           # install gcc dependencies
-          dnf install -y mingw${{ matrix.pkgarch }}-ctr mingw${{ matrix.pkgarch }}-headers
+          dnf install -y mingw${{ matrix.pkgarch }}-crt mingw${{ matrix.pkgarch }}-headers
           # install doc tools
           dnf install -y dblatex docbook2X docbook-xsl xmlto
           dnf install -y python3 python3-lxml python3-ply
