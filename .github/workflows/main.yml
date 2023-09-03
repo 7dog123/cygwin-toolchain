@@ -12,6 +12,10 @@ jobs:
       GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-static --enable-version-specific-runtime-libs --enable-bootstrap --enable-__cxa_atexit --with-dwarf2 --with-tune=generic --enable-languages=c,c++ --enable-graphite --enable-threads=posix --enable-libatomic --enable-libgomp --enable-libquadmath --enable-libquadmath-support --disable-libssp --enable-libada --disable-symvers --disable-multilib --with-gnu-ld --with-gnu-as --without-libiconv-prefix --without-libintl-prefix --with-system-zlib --enable-linker-build-id --with-default-libstdcxx-abi=gcc4-compatible --enable-libstdcxx-filesystem-ts"
       CYGWIN_V:   "3.4.8"
       CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix"
+      MING_V:     "11.0.1"
+      MINGH_O:    "--enable-sdk=all --enable-w32api"
+      MINGR_O:    "--enable-w32api --disable-lib32 --enable-lib64"
+      
     container: fedora:latest
     strategy:
       fail-fast: false
@@ -61,8 +65,10 @@ jobs:
           cd cygwin-${{ env.CYGWIN_V }}
           git checkout -q cygwin-${{ env.CYGWIN_V }}
           cd ..
+          wget -q -O mingw.tar.gz https://ftp.fau.de/macports/distfiles/mingw-w64/mingw-w64-${{ env.MING_V }}.tar.gz
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
+          tar -xf mingw.tar.gz
           # Patch binutils
           cd binutils-${{ env.BINUTILS_V }}
           cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -94,6 +100,26 @@ jobs:
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
           #./contrib/download_prerequisites
 
+      - name: Build headers
+        continue-on-error: true
+        run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          mkdir build-headers
+          cd build-headers
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
+          make -j2
+          make install -j2
+
+      - name: Build runtime
+        continue-on-error: true
+        run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          mkdir build-runtime
+          cd build-runtime
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGR_O }}
+          make -j2
+          make install -j2
+          
       - name: Build Binutils
         continue-on-error: true
         run: |
@@ -109,7 +135,7 @@ jobs:
         run: |
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }} CPPFLAGS="-I/usr/${{ matrix.mingw }}/sysroot/mingw"
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }}"
           export glibcxx_cv_realpath=yes
           ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
           ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
@@ -276,7 +302,7 @@ jobs:
           export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32 &&
           mkdir build-binutils &&
           cd build-binutils &&
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" --target=${{ matrix.target }} ${{ env.BINUTILS_O }} &&
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix="${{ github.workspace }}\gcc\cygwin" --target=${{ matrix.target }} ${{ env.BINUTILS_O }} &&
           make &&
           make install
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
@@ -287,7 +313,7 @@ jobs:
           export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32 &&
           mkdir build-gcc &&
           cd build-gcc &&
-          ../gcc-${{ env.GCC_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" --target=${{ matrix.target }} ${{ env.GCC_O }} &&
+          ../gcc-${{ env.GCC_V }}/configure --prefix="${{ github.workspace }}\gcc\cygwin" --target=${{ matrix.target }} ${{ env.GCC_O }} &&
           export glibcxx_cv_realpath=yes &&
           ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g` &&
           ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g` &&
@@ -309,7 +335,7 @@ jobs:
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix="${{ github.workspace }}/gcc/cygwin" --target=${{ matrix.target }} ${{ env.CYGWIN_O }} CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'" &&
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix="${{ github.workspace }}\gcc\cygwin" --target=${{ matrix.target }} ${{ env.CYGWIN_O }} CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'" &&
           make &&
           make install &&
           (cd */newlib; make info man) &&
@@ -317,7 +343,7 @@ jobs:
         shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail '{0}'
 
       - name: Archive Install
-        run: tar -zcvf cygwin-windows.tar.gz ${{ github.workspace }}/gcc/cygwin
+        run: tar -zcvf cygwin-windows.tar.gz D\:\a\\cygwin-toolchain\\cygwin-toolchain\\gcc\\cygwin
         shell: powershell
 
   archive-builds:
