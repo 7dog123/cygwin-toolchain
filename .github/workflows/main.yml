@@ -69,6 +69,7 @@ jobs:
           tar -xf binutils.tar.xz
           tar -xf gcc.tar.xz
           tar -xf mingw.tar.gz
+          mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
           # Patch binutils
           cd binutils-${{ env.BINUTILS_V }}
           cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
@@ -103,7 +104,6 @@ jobs:
       - name: Build headers
         continue-on-error: true
         run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-headers
           cd build-headers
           ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
@@ -113,10 +113,9 @@ jobs:
       - name: Build runtime
         continue-on-error: true
         run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-runtime
           cd build-runtime
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=x86_64-w64-mingw32 ${{ env.MINGR_O }}
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGR_O }}
           make -j2
           make install -j2
           
