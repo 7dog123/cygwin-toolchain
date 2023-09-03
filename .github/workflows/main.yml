@@ -92,7 +92,7 @@ jobs:
           cat ../patches/gcc/0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
           cat ../patches/gcc/0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
-          ./contrib/download_prerequisites
+          #./contrib/download_prerequisites
 
       - name: Build Binutils
         continue-on-error: true
@@ -267,7 +267,7 @@ jobs:
           cat ../patches/gcc/0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
           cat ../patches/gcc/0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
           cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
-          ./contrib/download_prerequisites
+          #./contrib/download_prerequisites
           popd
 
       - name: Build Binutils
