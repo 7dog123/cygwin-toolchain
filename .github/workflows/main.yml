@@ -109,7 +109,7 @@ jobs:
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --host=${{ matrix.target }} --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
@@ -167,7 +167,8 @@ jobs:
           cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
           cd ../..
-          mkdir build-cygwin
+          rm -Rf build-cygwin/*
+          mkdir -p build-cygwin
           cd build-cygwin
           ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
