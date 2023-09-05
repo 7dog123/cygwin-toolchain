@@ -22,8 +22,8 @@ jobs:
       matrix:
         include:
         - target: i386-pc-cygwin
-          mingw: i386-w64-mingw32
-          pkgarch: 32
+          mingw: x86_64-w64-mingw32
+          pkgarch: 64
         
     name: Fedora cross ${{ matrix.target }}
 
