@@ -131,6 +131,7 @@ jobs:
           ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
           make -j2
           make install -j2
+          ls -lR ${{ github.workspace }}/gcc/cygwin64
 
       - name: Build runtime
         if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
