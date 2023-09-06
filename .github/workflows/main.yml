@@ -106,7 +106,7 @@ jobs:
           cd ../..
           mkdir build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwinx64 --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
@@ -117,7 +117,7 @@ jobs:
         run: |
           mkdir build-headers
           cd build-headers
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
           make -j2
           make install -j2
 
@@ -126,7 +126,7 @@ jobs:
         run: |
           mkdir build-runtime
           cd build-runtime
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGR_O }}
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGR_O }}
           make -j2
           make install -j2
           
@@ -136,7 +136,7 @@ jobs:
           export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
           mkdir build-binutils
           cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
           make -j2
           make install -j2
 
@@ -145,7 +145,7 @@ jobs:
         run: |
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --target=${{ matrix.target }} ${{ env.GCC_O }}
           export glibcxx_cv_realpath=yes
           ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
           ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
@@ -167,14 +167,14 @@ jobs:
           rm -Rf build-cygwin/*
           mkdir -p build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
 
       - name: Archive Install
-        run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin
+        run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin64
         shell: bash
 
   linux32-build:
@@ -276,37 +276,40 @@ jobs:
       - name: Build headers
         continue-on-error: true
         run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin64/bin"
           mkdir build-headers
           cd build-headers
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGH_O }}
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin32 --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGH_O }}
           make -j2
           make install -j2
 
       - name: Build runtime
         continue-on-error: true
         run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin64/bin"
           mkdir build-runtime
           cd build-runtime
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGR_O }}
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin32 --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGR_O }}
           make -j2
           make install -j2
           
       - name: Build Binutils
         continue-on-error: true
         run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin64/bin"
           mkdir build-binutils
           cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin32 --build=x86-64-linux-gnu --host=${{ matrix.target }} --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
           make -j2
           make install -j2
 
       - name: Build gcc
         continue-on-error: true
         run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin64/bin"
           mkdir build-gcc
           cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }}
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin32 --build=x86-64-linux-gnu --host=${{ matrix.target }} --target=${{ matrix.target }} ${{ env.GCC_O }}
           export glibcxx_cv_realpath=yes
           ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
           ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
@@ -322,20 +325,21 @@ jobs:
       - name: Build cygwin
         continue-on-error: true
         run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin64/bin"
           cd cygwin-${{ env.CYGWIN_V }}/winsup
           ./autogen.sh
           cd ../..
           rm -Rf build-cygwin/*
           mkdir -p build-cygwin
           cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin32 --build=x86-64-linux-gnu --host=${{ matrix.target }} --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
           CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
 
       - name: Archive Install
-        run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin
+        run: tar -zcvf cygwin-linux32.tar.xz ${{ github.workspace }}/gcc/cygwin32
         shell: bash
 
   windows-build:
