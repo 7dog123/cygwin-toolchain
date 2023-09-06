@@ -3,178 +3,7 @@ name: CI
 on: [ push, pull_request ]
 
 jobs:
-  linux32-build:
-    runs-on: ubuntu-latest
-    env:
-      BINUTILS_V: "2.41"
-      BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-install-libiberty --with-system-zlib --with-gcc-major-version-only --enable-shared"
-      GCC_V:      "11.4.0"
-      GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-arch=i686 --with-tune=generic --with-gnu-as --with-gnu-ld --enable-linker-build-id --disable-multilib --with-system-zlib --enable-shared --enable-shared-libgcc --enable-static --without-included-gettext --disable-win32-registry --enable-threads=posix --enable-version-specific-runtime-libs --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-__cxa_atexit --with-dwarf2 --disable-sjlj-exceptions --enable-graphite --enable-languages=c,c++ --disable-libcc1 --enable-lto --disable-symvers --enable-libatomic --enable-libgomp --disable-libssp --enable-libquadmath --enable-libquadmath-support --enable-libstdcxx-filesystem-ts --with-default-libstdcxx-abi=gcc4-compatible"
-      CYGWIN_V:   "3.4.8"
-      CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix"
-      MING_V:     "11.0.1"
-      MINGH_O:    "--enable-sdk=all --enable-w32api"
-      MINGR_O:    "--enable-w32api --enable-lib32 --disable-lib64"
-      
-    container: fedora:latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - target: i386-pc-cygwin
-          mingw: x86_64-w64-mingw32
-          pkgarch: 64
-        
-    name: Fedora cross ${{ matrix.target }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          # install build tools
-          dnf install -y autoconf automake make patch perl
-          dnf install -y mingw${{ matrix.pkgarch }}-gcc-c++ mingw${{ matrix.pkgarch }}-winpthreads-static mingw${{ matrix.pkgarch }}-zlib-static
-          # install binutils depenencies
-          dnf install -y dejagnu gmp-devel glibc-devel gettext-devel isl-devel libmpc-devel mpfr-devel zlib-devel zstd
-          # enable 'dnf copr'
-          dnf install -y dnf-plugins-core
-          # cocom isn't packaged in Fedora, so we install from a copr
-          dnf copr enable -y jturney/cocom
-          dnf install -y cocom
-          # install cross-cygwin toolchain and libs from copr
-          dnf copr enable -y yselkowitz/cygwin
-          dnf install -y cygwin${{ matrix.pkgarch }}-gcc-c++ cygwin${{ matrix.pkgarch }}-gettext cygwin${{ matrix.pkgarch }}-libbfd cygwin${{ matrix.pkgarch }}-libiconv cygwin${{ matrix.pkgarch }}-zlib
-          # install gcc dependencies
-          dnf install -y mingw${{ matrix.pkgarch }}-crt mingw${{ matrix.pkgarch }}-headers
-          # install doc tools
-          dnf install -y dblatex docbook2X docbook-xsl xmlto
-          dnf install -y python3 python3-lxml python3-ply
-          fmtutil-sys --byfmt pdflatex && texhash
-          # install wget, git and bzip2
-          dnf install -y wget git bzip2
-
-      - name: Download, extract and patch Source
-        run: |
-          wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
-          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-${{ env.GCC_V }}/gcc-${{ env.GCC_V }}.tar.xz
-          git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
-          cd cygwin-${{ env.CYGWIN_V }}
-          git checkout -q cygwin-${{ env.CYGWIN_V }}
-          cd ..
-          wget -q -O mingw.tar.gz https://ftp.fau.de/macports/distfiles/mingw-w64/mingw-w64-${{ env.MING_V }}.tar.gz
-          tar -xf binutils.tar.xz
-          tar -xf gcc.tar.xz
-          tar -xf mingw.tar.gz
-          mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
-          # Patch binutils
-          cd binutils-${{ env.BINUTILS_V }}
-          cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
-          cat ../patches/binutils/binutils-2.41-cygwin-pep-dll-double-definition.patch | patch -p2
-          cat ../patches/binutils/binutils-2.41-cygwin-restore-bfd-seek-optimization.patch | patch -p1
-          # Patch shared libs
-          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' bfd/configure
-          sed -i 's#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="-Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin -lkernel32"#g' bfd/configure
-          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' bfd/configure.ac
-          sed -i 's#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' bfd/configure.ac
-          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure
-          sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure
-          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure.ac
-          sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure.ac
-          # patch gcc
-          cd ../gcc-${{ env.GCC_V }}
-          cat ../patches/gcc/0001-Cygwin-use-SysV-ABI-on-x86_64.patch | patch -p1
-          cat ../patches/gcc/0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch | patch -p1
-          cat ../patches/gcc/0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch | patch -p1
-          cat ../patches/gcc/0004-Cygwin-MinGW-skip-test.patch | patch -p1
-          cat ../patches/gcc/0005-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch | patch -p1
-          cat ../patches/gcc/0007-Cygwin-__cxa-atexit.patch | patch -p1
-          cat ../patches/gcc/0008-Cygwin-libgomp-soname.patch | patch -p1
-          cat ../patches/gcc/0009-Cygwin-g-time.patch | patch -p1
-          cat ../patches/gcc/0010-Cygwin-newlib-ftm.patch | patch -p1
-          cat ../patches/gcc/0011-Cygwin-define-STD_UNIX.patch | patch -p1
-          cat ../patches/gcc/0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
-          cat ../patches/gcc/0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
-          cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
-          #./contrib/download_prerequisites
-
-      - name: Build cygwin
-        continue-on-error: true
-        run: |
-          cd cygwin-${{ env.CYGWIN_V }}/winsup
-          ./autogen.sh
-          cd ../..
-          mkdir build-cygwin
-          cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=x86_64-pc-cygwin ${{ env.CYGWIN_O }} \
-          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
-          CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          make -j2
-          make install -j2
-          
-      - name: Build headers
-        continue-on-error: true
-        run: |
-          mkdir build-headers
-          cd build-headers
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
-          make -j2
-          make install -j2
-
-      - name: Build runtime
-        continue-on-error: true
-        run: |
-          mkdir build-runtime
-          cd build-runtime
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGR_O }}
-          make -j2
-          make install -j2
-          
-      - name: Build Binutils
-        continue-on-error: true
-        run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
-          mkdir build-binutils
-          cd build-binutils
-          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
-          make -j2
-          make install -j2
-
-      - name: Build gcc
-        continue-on-error: true
-        run: |
-          mkdir build-gcc
-          cd build-gcc
-          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }}
-          export glibcxx_cv_realpath=yes
-          ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
-          ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
-          ___CFLAGS=`echo ${___CFLAGS} | sed 's/[[:blank:]]\+/ /g'`
-          ___CXXFLAGS=`echo ${CXXFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
-          ___CXXFLAGS=`echo ${___CXXFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
-          ___CXXFLAGS=`echo ${___CXXFLAGS} | sed 's/[[:blank:]]\+/ /g'`
-          CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
-          CXXFLAGS="${___CXXFLAGS}"
-          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
-          make install -j2
-
-      - name: Build cygwin
-        continue-on-error: true
-        run: |
-          cd cygwin-${{ env.CYGWIN_V }}/winsup
-          ./autogen.sh
-          cd ../..
-          rm -Rf build-cygwin/*
-          mkdir -p build-cygwin
-          cd build-cygwin
-          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
-          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
-          CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
-          make -j2
-          make install -j2
-          
   linux64-build:
-    runs-on: ubuntu-latest
     env:
       BINUTILS_V: "2.41"
       BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-64-bit-bfd --enable-install-libiberty --enable-targets=x86_64-pep --with-system-zlib --with-gcc-major-version-only --enable-shared --enable-host-shared --with-sysroot"
@@ -347,9 +176,167 @@ jobs:
         run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin
         shell: bash
 
+  linux32-build:
+    runs-on: ubuntu-latest
+    needs:
+      linux64-build
+    env:
+      BINUTILS_V: "2.41"
+      BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-install-libiberty --with-system-zlib --with-gcc-major-version-only --enable-shared"
+      GCC_V:      "11.4.0"
+      GCC_O:      "--without-libiconv-prefix --without-libintl-prefix --with-arch=i686 --with-tune=generic --with-gnu-as --with-gnu-ld --enable-linker-build-id --disable-multilib --with-system-zlib --enable-shared --enable-shared-libgcc --enable-static --without-included-gettext --disable-win32-registry --enable-threads=posix --enable-version-specific-runtime-libs --with-gcc-major-version-only --enable-shared --enable-shared-libgcc --enable-__cxa_atexit --with-dwarf2 --disable-sjlj-exceptions --enable-graphite --enable-languages=c,c++ --disable-libcc1 --enable-lto --disable-symvers --enable-libatomic --enable-libgomp --disable-libssp --enable-libquadmath --enable-libquadmath-support --enable-libstdcxx-filesystem-ts --with-default-libstdcxx-abi=gcc4-compatible"
+      CYGWIN_V:   "3.4.8"
+      CYGWIN_O:   "--without-libiconv-prefix --without-libintl-prefix"
+      MING_V:     "11.0.1"
+      MINGH_O:    "--enable-sdk=all --enable-w32api"
+      MINGR_O:    "--enable-w32api --enable-lib32 --disable-lib64"
+      
+    container: fedora:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - target: i386-pc-cygwin
+          pkgarch: 64
+        
+    name: Fedora cross ${{ matrix.target }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          # install build tools
+          dnf install -y autoconf automake make patch perl
+          dnf install -y mingw${{ matrix.pkgarch }}-gcc-c++ mingw${{ matrix.pkgarch }}-winpthreads-static mingw${{ matrix.pkgarch }}-zlib-static
+          # install binutils depenencies
+          dnf install -y dejagnu gmp-devel glibc-devel gettext-devel isl-devel libmpc-devel mpfr-devel zlib-devel zstd
+          # enable 'dnf copr'
+          dnf install -y dnf-plugins-core
+          # cocom isn't packaged in Fedora, so we install from a copr
+          dnf copr enable -y jturney/cocom
+          dnf install -y cocom
+          # install cross-cygwin toolchain and libs from copr
+          dnf copr enable -y yselkowitz/cygwin
+          dnf install -y cygwin${{ matrix.pkgarch }}-gcc-c++ cygwin${{ matrix.pkgarch }}-gettext cygwin${{ matrix.pkgarch }}-libbfd cygwin${{ matrix.pkgarch }}-libiconv cygwin${{ matrix.pkgarch }}-zlib
+          # install gcc dependencies
+          dnf install -y mingw${{ matrix.pkgarch }}-crt mingw${{ matrix.pkgarch }}-headers
+          # install doc tools
+          dnf install -y dblatex docbook2X docbook-xsl xmlto
+          dnf install -y python3 python3-lxml python3-ply
+          fmtutil-sys --byfmt pdflatex && texhash
+          # install wget, git and bzip2
+          dnf install -y wget git bzip2
+
+      - name: Download, extract and patch Source
+        run: |
+          wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
+          wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-${{ env.GCC_V }}/gcc-${{ env.GCC_V }}.tar.xz
+          git clone -q https://github.com/cygwin/cygwin cygwin-${{ env.CYGWIN_V }}
+          cd cygwin-${{ env.CYGWIN_V }}
+          git checkout -q cygwin-${{ env.CYGWIN_V }}
+          cd ..
+          wget -q -O mingw.tar.gz https://ftp.fau.de/macports/distfiles/mingw-w64/mingw-w64-${{ env.MING_V }}.tar.gz
+          tar -xf binutils.tar.xz
+          tar -xf gcc.tar.xz
+          tar -xf mingw.tar.gz
+          mv mingw-w64-mingw-w64-e4dcfb3 mingw-w64-${{ env.MING_V }}
+          # Patch binutils
+          cd binutils-${{ env.BINUTILS_V }}
+          cat ../patches/binutils/binutils-2.41-cygwin-config-rpath.patch | patch -p2
+          cat ../patches/binutils/binutils-2.41-cygwin-pep-dll-double-definition.patch | patch -p2
+          cat ../patches/binutils/binutils-2.41-cygwin-restore-bfd-seek-optimization.patch | patch -p1
+          # Patch shared libs
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' bfd/configure
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="-Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin -lkernel32"#g' bfd/configure
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' bfd/configure.ac
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../libiberty -liberty $SHARED_LIBADD -lcygwin -lkernel32"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' bfd/configure.ac
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure
+          sed -i 's#SHARED_LDFLAGS="-no-undefined"#SHARED_LDFLAGS="-no-undefined -Wl,--exclude-libs=libiberty.a"#g' opcodes/configure.ac
+          sed -i 's#SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"#SHARED_LIBADD="`pwd`/../bfd/libbfd.la -Wl,`pwd`/../libiberty/libiberty.a -L`pwd`/../intl -lintl -lcygwin"#g' opcodes/configure.ac
+          # patch gcc
+          cd ../gcc-${{ env.GCC_V }}
+          cat ../patches/gcc/0001-Cygwin-use-SysV-ABI-on-x86_64.patch | patch -p1
+          cat ../patches/gcc/0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch | patch -p1
+          cat ../patches/gcc/0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch | patch -p1
+          cat ../patches/gcc/0004-Cygwin-MinGW-skip-test.patch | patch -p1
+          cat ../patches/gcc/0005-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch | patch -p1
+          cat ../patches/gcc/0007-Cygwin-__cxa-atexit.patch | patch -p1
+          cat ../patches/gcc/0008-Cygwin-libgomp-soname.patch | patch -p1
+          cat ../patches/gcc/0009-Cygwin-g-time.patch | patch -p1
+          cat ../patches/gcc/0010-Cygwin-newlib-ftm.patch | patch -p1
+          cat ../patches/gcc/0011-Cygwin-define-STD_UNIX.patch | patch -p1
+          cat ../patches/gcc/0101-Cygwin-enable-libgccjit-not-just-for-MingW.patch | patch -p1
+          cat ../patches/gcc/0102-Cygwin-testsuite-fixes-for-libgccjit.patch | patch -p1
+          cat ../patches/gcc/0201-Cygwin-ada-shared-prefix.patch | patch -p2
+          #./contrib/download_prerequisites
+          
+      - name: Build headers
+        continue-on-error: true
+        run: |
+          mkdir build-headers
+          cd build-headers
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGH_O }}
+          make -j2
+          make install -j2
+
+      - name: Build runtime
+        continue-on-error: true
+        run: |
+          mkdir build-runtime
+          cd build-runtime
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGR_O }}
+          make -j2
+          make install -j2
+          
+      - name: Build Binutils
+        continue-on-error: true
+        run: |
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          mkdir build-binutils
+          cd build-binutils
+          ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
+          make -j2
+          make install -j2
+
+      - name: Build gcc
+        continue-on-error: true
+        run: |
+          mkdir build-gcc
+          cd build-gcc
+          ../gcc-${{ env.GCC_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.GCC_O }}
+          export glibcxx_cv_realpath=yes
+          ___CFLAGS=`echo ${CFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
+          ___CFLAGS=`echo ${___CFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
+          ___CFLAGS=`echo ${___CFLAGS} | sed 's/[[:blank:]]\+/ /g'`
+          ___CXXFLAGS=`echo ${CXXFLAGS} | sed s/-Werror=format-security/-Wformat-security/g`
+          ___CXXFLAGS=`echo ${___CXXFLAGS} | sed s/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g`
+          ___CXXFLAGS=`echo ${___CXXFLAGS} | sed 's/[[:blank:]]\+/ /g'`
+          CFLAGS="${___CFLAGS} -DWIN32_LEAN_AND_MEAN"
+          CXXFLAGS="${___CXXFLAGS}"
+          make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
+          make install -j2
+
+      - name: Build cygwin
+        continue-on-error: true
+        run: |
+          cd cygwin-${{ env.CYGWIN_V }}/winsup
+          ./autogen.sh
+          cd ../..
+          rm -Rf build-cygwin/*
+          mkdir -p build-cygwin
+          cd build-cygwin
+          ../cygwin-${{ env.CYGWIN_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin --target=${{ matrix.target }} ${{ env.CYGWIN_O }} \
+          CFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector" \
+          CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
+          make -j2
+          make install -j2
+
       - name: Archive Install
-        run: tar -zcvf cygwin-linux32.tar.xz ${{ github.workspace }}/gcc/cygwin
+        run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin
         shell: bash
+
   windows-build:
     runs-on: windows-latest
     env:
