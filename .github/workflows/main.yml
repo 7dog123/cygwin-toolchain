@@ -42,7 +42,7 @@ jobs:
         run: |
           # install build tools
           dnf install -y autoconf automake make patch perl
-          dnf install -y mingw${{ matrix.pkgarch }}-gcc mingw${{ matrix.pkgarch }}-gcc-c++ mingw${{ matrix.pkgarch }}-winpthreads-static mingw${{ matrix.pkgarch }}-zlib-static
+          dnf install -y mingw${{ matrix.pkgarch }}-gcc mingw${{ matrix.pkgarch }}-gcc-c++ mingw${{ matrix.pkgarch }}-winpthreads-static mingw${{ matrix.pkgarch }}-zlib-static mingw${{ matrix.pkgarch }}-headers
           # install binutils depenencies
           dnf install -y dejagnu gmp-devel glibc-devel gettext-devel isl-devel libmpc-devel mpfr-devel zlib-devel zstd
           # enable 'dnf copr'
@@ -229,7 +229,7 @@ jobs:
         run: |
           # install build tools
           dnf install -y autoconf automake make patch perl
-          dnf install -y mingw${{ matrix.pkgarch }}-gcc-c++ mingw${{ matrix.pkgarch }}-winpthreads-static mingw${{ matrix.pkgarch }}-zlib-static
+          dnf install -y mingw${{ matrix.pkgarch }}-gcc-c++ mingw${{ matrix.pkgarch }}-winpthreads-static mingw${{ matrix.pkgarch }}-zlib-static mingw${{ matrix.pkgarch }}-headers
           # install binutils depenencies
           dnf install -y dejagnu gmp-devel glibc-devel gettext-devel isl-devel libmpc-devel mpfr-devel zlib-devel zstd
           # enable 'dnf copr'
