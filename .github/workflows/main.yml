@@ -30,15 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Initialize toolchain cache
-        id:   _cache
-        uses: actions/cache@v3
-        with:
-          key:  gcc-${{ matrix.target }}
-          path: gcc
-
       - name: Install dependencies
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         run: |
           # install build tools
           dnf install -y autoconf automake make patch perl
@@ -63,7 +55,6 @@ jobs:
           dnf install -y wget git bzip2
 
       - name: Download, extract and patch Source
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         run: |
           wget -q -O binutils.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${{ env.BINUTILS_V }}.tar.xz
           wget -q -O gcc.tar.xz https://sourceware.org/pub/gcc/releases/gcc-${{ env.GCC_V }}/gcc-${{ env.GCC_V }}.tar.xz
@@ -108,7 +99,6 @@ jobs:
           #./contrib/download_prerequisites
 
       - name: Build cygwin
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: |
           cd cygwin-${{ env.CYGWIN_V }}/winsup
@@ -123,7 +113,6 @@ jobs:
           make install -j2
           
       - name: Build headers
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: |
           mkdir build-headers
@@ -131,24 +120,11 @@ jobs:
           ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
           make -j2
           make install -j2
-          ls -lR ${{ github.workspace }}/gcc/cygwin64
-
-      - name: Build runtime
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
-        continue-on-error: true
-        run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
-          mkdir build-runtime
-          cd build-runtime
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGR_O }}
-          make -j2
-          make install -j2
           
       - name: Build Binutils
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: |
-          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin/bin"
+          export PATH="$PATH:${{ github.workspace }}/gcc/cygwin64/bin"
           mkdir build-binutils
           cd build-binutils
           ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
@@ -156,7 +132,6 @@ jobs:
           make install -j2
 
       - name: Build gcc
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: |
           mkdir build-gcc
@@ -175,7 +150,6 @@ jobs:
           make install -j2
 
       - name: Build cygwin
-        if:   ${{ steps._cache.outputs.cache-hit != 'true' }}
         continue-on-error: true
         run: |
           cd cygwin-${{ env.CYGWIN_V }}/winsup
@@ -189,6 +163,22 @@ jobs:
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
+          
+      - name: Build runtime
+        continue-on-error: true
+        run: |
+          mkdir build-runtime
+          cd build-runtime
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGR_O }}
+          make -j2
+          make install -j2
+          
+      - name: Create gcc Cache.
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/gcc/cygwin64
+          key: cache-cygwin64-folder-${{ runner.os }}
 
       - name: Archive Install
         run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin64
@@ -221,11 +211,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Initialize toolchain cache
+      - name: Restore gcc cache
         uses: actions/cache@v3
         with:
-          key:  gcc-x86_64-pc-cygwin
-          path: gcc
+          path: |
+            ${{ github.workspace }}/gcc/cygwin64
+          key: cache-cygwin64-folder-${{ runner.os }}
 
       - name: Install dependencies
         run: |
@@ -363,6 +354,19 @@ jobs:
       - name: Archive Install
         run: tar -zcvf cygwin-linux32.tar.xz ${{ github.workspace }}/gcc/cygwin32
         shell: bash
+
+  list-directories:
+    runs-on: ubuntu-latest
+    needs: 
+      - linux32-build
+      - linux64-build
+
+    steps:
+      - name: List Prefix Directory
+        if: always()
+        shell: bash
+        run: |
+          ls -lR ${{ github.workspace }}/gcc
 
   windows-build:
     runs-on: windows-latest
