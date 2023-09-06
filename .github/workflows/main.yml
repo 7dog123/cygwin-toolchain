@@ -34,7 +34,7 @@ jobs:
         id:   _cache
         uses: actions/cache@v1
         with:
-          key:  gcc-${{ env.GCC_TARGET }}-${{ env.GCC_VERSION }}
+          key:  gcc-${{ matrix.target }}-${{ env.GCC_V }}
           path: gcc
 
       - name: Install dependencies
@@ -222,7 +222,7 @@ jobs:
       - name: Initialize toolchain cache
         uses: actions/cache@v1
         with:
-          key:  gcc-${{ env.GCC_TARGET }}-${{ env.GCC_VERSION }}
+          key:  gcc-x86_64-pc-cygwin-${{ env.GCC_V }}
           path: gcc
 
       - name: Install dependencies
