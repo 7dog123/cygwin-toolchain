@@ -194,6 +194,7 @@ jobs:
 
   linux32-build:
     runs-on: ubuntu-latest
+    needs: linux64-build
     env:
       BINUTILS_V: "2.41"
       BINUTILS_O: "--without-libiconv-prefix --without-libintl-prefix --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --enable-install-libiberty --with-system-zlib --with-gcc-major-version-only --enable-shared"
