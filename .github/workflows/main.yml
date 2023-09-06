@@ -14,7 +14,8 @@ jobs:
       MING_V:     "11.0.1"
       MINGH_O:    "--enable-sdk=all --enable-w32api"
       MINGR_O:    "--enable-w32api --disable-lib32 --enable-lib64"
-      
+
+    runs-on: ubuntu-latest
     container: fedora:latest
     strategy:
       fail-fast: false
