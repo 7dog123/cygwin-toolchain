@@ -111,6 +111,7 @@ jobs:
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
+          make clean -j2
           
       - name: Build headers
         continue-on-error: true
@@ -120,6 +121,7 @@ jobs:
           ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.mingw }} ${{ env.MINGH_O }}
           make -j2
           make install -j2
+          make clean -j2
           
       - name: Build Binutils
         continue-on-error: true
@@ -130,6 +132,7 @@ jobs:
           ../binutils-${{ env.BINUTILS_V }}/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --target=${{ matrix.target }} ${{ env.BINUTILS_O }}
           make -j2
           make install -j2
+          make clean -j2
 
       - name: Build gcc
         continue-on-error: true
@@ -148,6 +151,7 @@ jobs:
           CXXFLAGS="${___CXXFLAGS}"
           make -j2 ${MAKEOPTS} BOOT_CFLAGS="${CXXFLAGS}"
           make install -j2
+          make clean -j2
 
       - name: Build cygwin
         continue-on-error: true
@@ -163,22 +167,33 @@ jobs:
           CXXFLAGS=" -Wp,-U_FORTIFY_SOURCE -fno-stack-protector -DCYGPORT_RELEASE_INFO='3.4.8-1'"
           make -j2
           make install -j2
-          
+          make clean -j2
+
+      - name: Build headers
+        continue-on-error: true
+        run: |
+          mkdir build-headers
+          cd build-headers
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-headers/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGH_O }}
+          make -j2
+          make install -j2
+          make clean -j2
+  
       - name: Build runtime
         continue-on-error: true
         run: |
           mkdir build-runtime
           cd build-runtime
-          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGR_O }}
+          ../mingw-w64-${{ env.MING_V }}/mingw-w64-crt/configure --prefix=${{ github.workspace }}/gcc/cygwin64 --build=x86-64-linux-gnu --host=${{ matrix.target }} ${{ env.MINGR_O }} CPPFLAGS="-I=${{ github.workspace }}/gcc/cygwin64/include"
           make -j2
           make install -j2
+          make clean -j2
           
-      - name: Create gcc Cache.
+      - name: Cache Cygwin64
         uses: actions/cache@v3
         with:
-          path: |
-            ${{ github.workspace }}/gcc/cygwin64
-          key: cache-cygwin64-folder-${{ runner.os }}
+          path: ${{ github.workspace }}/gcc/cygwin64
+          key: cygwin64-${{ runner.os }}
 
       - name: Archive Install
         run: tar -zcvf cygwin-linux64.tar.xz ${{ github.workspace }}/gcc/cygwin64
@@ -214,9 +229,10 @@ jobs:
       - name: Restore gcc cache
         uses: actions/cache@v3
         with:
-          path: |
-            ${{ github.workspace }}/gcc/cygwin64
-          key: cache-cygwin64-folder-${{ runner.os }}
+          path: ${{ github.workspace }}/gcc/cygwin64
+          key: cygwin64-${{ runner.os }}
+          restore-keys: |
+            cygwin64-
 
       - name: Install dependencies
         run: |
