@@ -191,7 +191,7 @@ jobs:
       - name: Cache Cygwin64
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/gcc/cygwin64
+          path: gcc
           key: cygwin64-${{ runner.os }}
 
       - name: Archive Install
